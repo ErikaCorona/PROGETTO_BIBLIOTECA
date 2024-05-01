@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.PROGETTOBIBLIOTECA" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Color primary -->
+        <item name="colorPrimary">@color/salvia</item>
+        <item name="colorPrimaryVariant">@color/salvia</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Color secondary -->
+        <item name="colorSecondary">@color/lightbrown</item>
+        <item name="colorSecondaryVariant">@color/darkbrownie</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- barra stato -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+</resources>

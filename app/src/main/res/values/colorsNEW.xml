@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lime">#6AD51E</color>
+    <color name="salvia">#93A996</color>
+    <color name="purdarkgreen">#0F3E05</color>
+    <color name="lightbrown">#7C4D3A</color>
+    <color name="darkbrownie">#3C2216</color>
+    <color name="pine">#2E5011</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
