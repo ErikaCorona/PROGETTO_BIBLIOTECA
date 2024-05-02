@@ -1,5 +1,6 @@
 package com.example.progettobiblioteca
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -21,6 +22,7 @@ class MainActivity_new : AppCompatActivity() {
         tabLayout.addTab(tabLayout.newTab().setText("Signup"))
 
         adattatore = AdatatoreVistaPagina(supportFragmentManager, lifecycle)
+
         viewPager2.adapter = adattatore
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -37,5 +39,12 @@ class MainActivity_new : AppCompatActivity() {
                 tabLayout.selectTab(tabLayout.getTabAt(position))
             }
         })
+
+        fun onRegistrationSuccess() {
+            // Azioni da eseguire quando la registrazione è completata con successo
+            // Per esempio, passa all'attività successiva
+            val intent = Intent(this, Menu::class.java)
+            startActivity(intent)
+        }
     }
 }
