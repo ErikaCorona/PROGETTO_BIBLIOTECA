@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn = "navigation_view">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/baseline_whatshot_24"
+            android:title="News"/>
+
+
+        <item
+            android:id="@+id/nav_catalog"
+            android:icon="@drawable/baseline_menu_book_24"
+            android:title="Catalog"/>
+
+
+        <item
+            android:id="@+id/nav_loan"
+            android:icon="@drawable/baseline_checklist_24"
+            android:title="On loan"/>
+
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/baseline_settings_24"
+            android:title="Settings"/>
+    </group>
+    <item
+        android:title="">
+
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/baseline_logout_24"
+                android:title="Logout"/>
+        </menu>
+
+    </item>
+
+</menu>
