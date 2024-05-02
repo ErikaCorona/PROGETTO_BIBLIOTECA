@@ -2,7 +2,7 @@ package com.example.progettobiblioteca
 import android.util.Patterns.EMAIL_ADDRESS
 import java.util.regex.Pattern
 
-
+// classe per le verifiche
 class Verifiche {
     companion object {
 
