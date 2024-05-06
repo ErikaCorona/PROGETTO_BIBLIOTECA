@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600225130758",
+    "project_id": "progetto-biblioteca-cba0f",
+    "storage_bucket": "progetto-biblioteca-cba0f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600225130758:android:27cca5a6a34220a39c1687",
+        "android_client_info": {
+          "package_name": "com.example.progettobiblioteca"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2TWNsDLxOTYMZchx8NL-niJyLj6NQEBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
