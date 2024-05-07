@@ -20,6 +20,7 @@ class SignupFragm : Fragment() {
     private lateinit var passwordEditText: EditText
     private lateinit var confPassEditText: EditText
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +44,12 @@ class SignupFragm : Fragment() {
 
 
             if (Verifiche.isValidEmail(email) && Verifiche.isValidPassword(password) && Verifiche.confirmPassword(password, confirm)) {
+
+                val myDB = DataBaseHelper(requireContext())
+                val trimmedEmail = email.trim()
+                val trimmedPassword = password.trim()
+                myDB.addUser(requireContext(),trimmedEmail, trimmedPassword)
+
                 val intent = Intent(activity, Menu::class.java)
                 startActivity(intent)
             } else if (!Verifiche.isValidEmail(email)) {
