@@ -48,7 +48,7 @@ class SignupFragm : Fragment() {
                 val myDB = DataBaseHelper(requireContext())
                 val trimmedEmail = email.trim()
                 val trimmedPassword = password.trim()
-                myDB.addUser(requireContext(),trimmedEmail, trimmedPassword)
+                myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword)
 
                 val intent = Intent(activity, Menu::class.java)
                 startActivity(intent)
@@ -56,22 +56,22 @@ class SignupFragm : Fragment() {
                 val context: Context = requireContext()
                 val title = "errore"
                 val message = "email non valida"
-                showNotification(context, title, message)
+                Notifica.showNotification(context, title, message)
             } else if (!Verifiche.isValidPassword(password)) {
                 val context: Context = requireContext()
                 val title = "errore"
                 val message = "password errata"
-                showNotification(context, title, message)
+                Notifica.showNotification(context, title, message)
             } else if (Verifiche.isValidPassword(password) && Verifiche.confirmPassword(password, confirm)) {
                 val context: Context = requireContext()
                 val title = "successo"
                 val message = "password corrispondenti"
-                showNotification(context, title, message)
+                Notifica.showNotification(context, title, message)
             } else {
                 val context: Context = requireContext()
                 val title = "errore"
                 val message = "password non corrispondenti"
-                showNotification(context, title, message)
+                Notifica.showNotification(context, title, message)
             }
 
 
@@ -79,25 +79,7 @@ class SignupFragm : Fragment() {
 
         return rootView
     }
-    fun showNotification(context: Context, title: String, message: String) {
-        val notificationId = 1
-        val channelId = "my_channel_id"
-        val channelName = "My Channel"
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Icona della notifica
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
-        }
-        notificationManager.notify(notificationId, notificationBuilder.build())
-    }
 
 
 }

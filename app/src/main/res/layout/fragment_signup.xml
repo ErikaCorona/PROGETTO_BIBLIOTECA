@@ -21,7 +21,7 @@
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="120dp"
+                android:layout_height="80dp"
                 android:src="@drawable/signupimg" />
 
             <EditText
@@ -29,7 +29,7 @@
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/testoedit_bg"
                 android:drawableLeft="@drawable/baseline_email_24"
                 android:drawablePadding="8dp"
@@ -41,7 +41,7 @@
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/testoedit_bg"
                 android:drawableLeft="@drawable/baseline_lock_24"
                 android:drawablePadding="8dp"
@@ -54,20 +54,27 @@
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/testoedit_bg"
                 android:drawableLeft="@drawable/baseline_password_24"
                 android:drawablePadding="8dp"
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
                 android:padding="8dp" />
-
+            <CheckBox
+                android:id="@+id/adminCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/purdarkgreen"
+                android:text="Admin" />
             <Button
                 android:id="@+id/signup_button"
                 android:layout_width="300dp"
                 android:layout_height="70dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:text="Signup"
                 android:textSize="18sp"
                 app:cornerRadius="30dp" />
