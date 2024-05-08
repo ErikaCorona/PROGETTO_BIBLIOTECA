@@ -1,17 +1,15 @@
 package com.example.progettobiblioteca
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import androidx.core.app.NotificationCompat
+import android.widget.Switch
 import androidx.fragment.app.Fragment
 
 class SignupFragm : Fragment() {
@@ -19,6 +17,9 @@ class SignupFragm : Fragment() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var confPassEditText: EditText
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var admin: Switch
+
 
 
     override fun onCreateView(
@@ -32,7 +33,7 @@ class SignupFragm : Fragment() {
         emailEditText = rootView.findViewById(R.id.signup_email)
         passwordEditText = rootView.findViewById(R.id.signup_password)
         confPassEditText = rootView.findViewById(R.id.signup_confirm)
-
+        admin = rootView.findViewById(R.id.adminSwitch)
 
 
         val registerButton = rootView.findViewById<Button>(R.id.signup_button)
@@ -48,7 +49,7 @@ class SignupFragm : Fragment() {
                 val myDB = DataBaseHelper(requireContext())
                 val trimmedEmail = email.trim()
                 val trimmedPassword = password.trim()
-                myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword)
+                myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword, admin)
 
                 val intent = Intent(activity, Menu::class.java)
                 startActivity(intent)

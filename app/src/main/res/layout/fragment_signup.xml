@@ -22,6 +22,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="80dp"
+                android:layout_marginTop="20dp"
                 android:src="@drawable/signupimg" />
 
             <EditText
@@ -61,14 +62,15 @@
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
                 android:padding="8dp" />
-            <CheckBox
-                android:id="@+id/adminCheckBox"
+            <Switch
+                android:id="@+id/adminSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:textColor="@color/purdarkgreen"
-                android:text="Admin" />
+                android:text="Admin"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
             <Button
                 android:id="@+id/signup_button"
                 android:layout_width="300dp"
