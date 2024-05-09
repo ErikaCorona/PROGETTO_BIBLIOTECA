@@ -51,7 +51,7 @@ class MenuHandler(private val navView: NavigationView, private val bottomNavigat
         }
     }
 
-    /*private fun handleBottomNavigationItemClick(menuItem: MenuItem): Boolean {
+    private fun handleBottomNavigationItemClick(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.bottom_nav_item1 -> {
                 // Gestisci il click sul primo elemento della barra di navigazione inferiore
@@ -64,5 +64,5 @@ class MenuHandler(private val navView: NavigationView, private val bottomNavigat
             // Aggiungi più casi se hai più elementi nella tua barra di navigazione inferiore
             else -> false
         }
-    }*/
+    }
 
