@@ -52,7 +52,7 @@ class SignupFragm : Fragment() {
                 val trimmedPassword = password.trim()
                 myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword, admin)
 
-                val intent = Intent(activity, Menu::class.java)
+                val intent = Intent(activity, MenuHandler::class.java)
                 startActivity(intent)
             } else if (!Verifiche.isValidEmail(email)) {
                 val context: Context = requireContext()

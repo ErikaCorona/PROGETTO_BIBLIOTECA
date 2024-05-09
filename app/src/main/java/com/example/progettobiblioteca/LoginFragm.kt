@@ -32,7 +32,7 @@ class LoginFragm : Fragment() {
             val password = passwordEditText.text.toString()
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 login(requireContext(), email, password)
-                val intent = Intent(activity, Menu::class.java)
+                val intent = Intent(activity, MenuHandler::class.java)
                 startActivity(intent)
 
             }

@@ -28,7 +28,7 @@
         </activity>
 
         <!-- Dichiarazione dell'attività MainActivity_secondaschermatamenulaterale -->
-        <activity android:name=".MainActivity_secondaschermatamenulaterale">
+        <activity android:name=".MenuHandler">
         </activity>
 
     </application>
