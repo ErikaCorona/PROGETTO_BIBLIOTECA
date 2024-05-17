@@ -1,11 +1,9 @@
 package com.example.progettobiblioteca
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -51,9 +49,9 @@ class SignupFragm : Fragment() {
                 val trimmedEmail = email.trim()
                 val trimmedPassword = password.trim()
                 myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword, admin)
-
-                val intent = Intent(activity, Menu::class.java)
+                val intent = Intent(context, MenuHandler::class.java)
                 startActivity(intent)
+
             } else if (!Verifiche.isValidEmail(email)) {
                 val context: Context = requireContext()
                 val title = "errore"

@@ -10,10 +10,20 @@ import com.example.progettobiblioteca.Notifica.Companion.showNotification
 
 val DATABASE_NAME="Library"
 val TABLE_NAME="Users"
+ val TABLE_NAME_BOOKS = "Libri"
+ val TABLE_NAME_FILM= "Film"
 val COL_EMAIL="Email"
 val COL_PASSWORD="Password"
 val COL_ADMIN="Admin"
 val COL_ID= "_id"
+ val COL_BOOK_TITOLO= "Titolo"
+ val COL_BOOK_AUTORE= "Autore"
+ val COL_ANNO="Anno"
+ val COL_DATA_NOLLEGGIO="Data Nolleggio"
+ val COL_DATA_RESTITUZIONE= "Data Restituzione"
+ val COL_FILM_TITOLO= "Titolo"
+ val COL_FILM_REGISTA= "Regista"
+
 class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,1) {
     override fun onCreate(db: SQLiteDatabase?) {
         val createTable = "CREATE TABLE " + TABLE_NAME+ "(" +
@@ -22,12 +32,34 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 COL_PASSWORD + " TEXT, " +
                 COL_ADMIN + " INTEGER);";
         db?.execSQL(createTable)
+
+        val createBookTable= "CREATE TABLE " + TABLE_NAME_BOOKS+ "(" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                COL_BOOK_TITOLO + " TEXT, "+
+                COL_BOOK_AUTORE+ " TEXT, "+
+                COL_ANNO+ " INTEGER, "+
+                COL_DATA_NOLLEGGIO + " TEXT NULL, "+
+                COL_DATA_RESTITUZIONE+" TEXT NULL);";
+        db?.execSQL(createBookTable)
+
+        val createFilmTable= "CREATE TABLE " + TABLE_NAME_FILM + "(" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                COL_FILM_TITOLO+ " TEXT, "+
+                COL_FILM_REGISTA+ " TEXT, "+
+                COL_ANNO+ " INTEGER, "+
+                COL_DATA_NOLLEGGIO + " TEXT NULL, "+
+                COL_DATA_RESTITUZIONE+" TEXT NULL);";
+        db?.execSQL(createFilmTable)
+
+
+
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         TODO("Not yet implemented")
     }
-    fun addUser(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
+    private fun addUser(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
         val db = this.writableDatabase
         val cv = ContentValues()
         cv.put(COL_EMAIL, email)
@@ -64,8 +96,32 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
         }
     }
+    fun addBook( context:Context, titolo:String, autore:String, anno:Int){
+        val dbHelper = DataBaseHelper(context)
+            val db = dbHelper.writableDatabase
+            val cv = ContentValues().apply {
+                put(COL_BOOK_TITOLO, titolo)
+                put(COL_BOOK_AUTORE, autore)
+                put(COL_ANNO, anno)
 
+        }
+            val result = db.insert(TABLE_NAME_BOOKS, null, cv)
+            db.close()
+            if (result == -1L) {
+                val title = "Errore"
+                val message = "Errore durante l'aggiunta del libro"
+                showNotification(context, title, message)
+            } else {
+                val title = "Successo"
+                val message = "Libro aggiunto con successo"
+                showNotification(context, title, message)
+            }
+
+    }
 
 
 
 }
+
+
+
