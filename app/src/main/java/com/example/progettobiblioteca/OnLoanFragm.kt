@@ -20,6 +20,7 @@ class OnLoanFragm : Fragment() {
         nome=view.findViewById(R.id.item_name)
         val salvaPrestito=view.findViewById<Button>(R.id.loan_button)
         salvaPrestito.setOnClickListener{{}
+
     }
         return view
     }
