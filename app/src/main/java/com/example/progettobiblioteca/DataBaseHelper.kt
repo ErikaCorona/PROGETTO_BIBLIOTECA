@@ -12,44 +12,67 @@ val DATABASE_NAME="Library"
 val TABLE_NAME="Users"
  val TABLE_NAME_BOOKS = "Libri"
  val TABLE_NAME_FILM= "Film"
+ val TABLE_NAME_CANZONE= "Canzone"
 val COL_EMAIL="Email"
 val COL_PASSWORD="Password"
 val COL_ADMIN="Admin"
 val COL_ID= "_id"
- val COL_BOOK_TITOLO= "Titolo"
+ val COL_BOOK_TITOLO= "TitoloBook"
  val COL_BOOK_AUTORE= "Autore"
- val COL_ANNO="Anno"
- val COL_DATA_NOLLEGGIO="Data Nolleggio"
- val COL_DATA_RESTITUZIONE= "Data Restituzione"
- val COL_FILM_TITOLO= "Titolo"
+ val COL_ANNO="AnnoBook"
+ val COL_FILM_ANNO="AnnoFilm"
+ val COL_MUSICA_ANNO="AnnoMusica"
+ val COL_DATA_NOLEGGIO="DataNolleggioBook"
+ val COL_DATA_RESTITUZIONE= "DataRestituzioneBook"
+ val COL_FILM_DATA_NOLEGGIO="Data Nolleggio film"
+ val COL_MUSICA_DATA_NOLEGGIO="DataNolleggioMusica"
+ val COL_MUSICA_DATA_RESTITUZIONE= "DataRestituzioneMusica"
+ val COL_FILM_DATA_RESTITUZIONE= "DataRestituzioneFilm"
+ val COL_FILM_TITOLO= "TitoloFilm"
  val COL_FILM_REGISTA= "Regista"
+ val COL_MUSICA_TITOLO="TitoloMucica"
+ val COL_MUSICA_CANTANTE="Cantante"
+ val COL_MUSICA_GENERE="Genere"
+ val DATABASE_VERSION = 1
 
-class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,1) {
+class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,
+    DATABASE_VERSION) {
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTable = "CREATE TABLE " + TABLE_NAME+ "(" +
+        val createUserTable = "CREATE TABLE " + TABLE_NAME+ "(" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_EMAIL + " TEXT, " +
                 COL_PASSWORD + " TEXT, " +
-                COL_ADMIN + " INTEGER);";
-        db?.execSQL(createTable)
+                COL_ADMIN + " INTEGER);"
+        db?.execSQL(createUserTable)
 
         val createBookTable= "CREATE TABLE " + TABLE_NAME_BOOKS+ "(" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 COL_BOOK_TITOLO + " TEXT, "+
                 COL_BOOK_AUTORE+ " TEXT, "+
                 COL_ANNO+ " INTEGER, "+
-                COL_DATA_NOLLEGGIO + " TEXT NULL, "+
-                COL_DATA_RESTITUZIONE+" TEXT NULL);";
+                COL_DATA_NOLEGGIO + " TEXT, "+
+                COL_DATA_RESTITUZIONE+ " TEXT);"
         db?.execSQL(createBookTable)
 
         val createFilmTable= "CREATE TABLE " + TABLE_NAME_FILM + "(" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 COL_FILM_TITOLO+ " TEXT, "+
                 COL_FILM_REGISTA+ " TEXT, "+
-                COL_ANNO+ " INTEGER, "+
-                COL_DATA_NOLLEGGIO + " TEXT NULL, "+
-                COL_DATA_RESTITUZIONE+" TEXT NULL);";
+                COL_FILM_ANNO+ " INTEGER, "+
+                COL_FILM_DATA_NOLEGGIO + " TEXT, "+
+                COL_FILM_DATA_RESTITUZIONE+ " TEXT);"
         db?.execSQL(createFilmTable)
+
+        val createMusicaTable= "CREATE TABLE " + TABLE_NAME_CANZONE + "(" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                COL_MUSICA_TITOLO+ " TEXT, "+
+                COL_MUSICA_CANTANTE+ " TEXT, "+
+                COL_MUSICA_ANNO+ " INTEGER, "+
+                COL_MUSICA_GENERE+ " TEXT, "+
+                COL_MUSICA_DATA_NOLEGGIO + " TEXT, "+
+                        COL_MUSICA_DATA_RESTITUZIONE+ " TEXT);"
+        db?.execSQL(createMusicaTable)
 
 
 
@@ -57,7 +80,11 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("Not yet implemented")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_BOOKS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_FILM")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_CANZONE")
+        onCreate(db)
     }
     private fun addUser(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
         val db = this.writableDatabase
@@ -96,15 +123,18 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
         }
     }
-    fun addBook( context:Context, titolo:String, autore:String, anno:Int){
-        val dbHelper = DataBaseHelper(context)
+
+
+        fun addBook( context:Context, titolo:String, autore:String, anno:Int) {
+
+            val dbHelper = DataBaseHelper(context)
             val db = dbHelper.writableDatabase
             val cv = ContentValues().apply {
                 put(COL_BOOK_TITOLO, titolo)
                 put(COL_BOOK_AUTORE, autore)
                 put(COL_ANNO, anno)
 
-        }
+            }
             val result = db.insert(TABLE_NAME_BOOKS, null, cv)
             db.close()
             if (result == -1L) {
@@ -116,8 +146,8 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 val message = "Libro aggiunto con successo"
                 showNotification(context, title, message)
             }
+        }
 
-    }
 
 
 

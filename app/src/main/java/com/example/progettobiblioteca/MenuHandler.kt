@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.navigation.NavigationView
 
 class MenuHandler : AppCompatActivity() {
@@ -25,11 +27,9 @@ class MenuHandler : AppCompatActivity() {
 
         navView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.nav_search -> Toast.makeText(
-                    applicationContext,
-                    " search cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
+                R.id.add->openFragment(AddFragm())
+                R.id.nav_search -> openFragment(SearchFragment())
+
                 R.id.nav_news -> Toast.makeText(
                     applicationContext,
                     " news cliccato",
@@ -42,11 +42,7 @@ class MenuHandler : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                R.id.nav_loan -> Toast.makeText(
-                    applicationContext,
-                    " loan cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
+                R.id.nav_loan -> openFragment(OnLoanFragm())
 
                 R.id.nav_settings -> Toast.makeText(
                     applicationContext,
@@ -64,6 +60,17 @@ class MenuHandler : AppCompatActivity() {
             true
         }
 
+    }
+
+    private fun openFragment(fragment: Fragment): Boolean {
+        val fragmentManager: FragmentManager = supportFragmentManager
+        fragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        drawerLayout.closeDrawers()
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

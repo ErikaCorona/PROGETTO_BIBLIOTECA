@@ -7,6 +7,10 @@
     <group
         android:checkableBehavior="single">
         <item
+            android:id="@+id/add"
+            android:icon="@drawable/baseline_add_24"
+            android:title="Add"/>
+        <item
             android:id="@+id/nav_search"
             android:icon="@drawable/baseline_search_24"
             android:title="Search"/>
