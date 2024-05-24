@@ -1,6 +1,7 @@
  package com.example.progettobiblioteca
 
 import android.annotation.SuppressLint
+import android.content.ClipData.Item
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -35,7 +36,7 @@ val COL_ID= "_id"
  val TABLE_PRESTITI= "Prestiti"
  val COL_USER_ID="user_id"
  val COL_ITEM_ID ="item_id"
- val COL_ITEM_TYPE ="item_type"
+
  val DATABASE_VERSION = 1
 
 class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,
@@ -78,7 +79,6 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 COL_USER_ID+ " INTEGER NOT NULL, "+
                 COL_ITEM_ID+ " INTEGER NOT NULL, "+
-                COL_ITEM_TYPE+ " TEXT NOT NULL, "+
                 COL_DATA_NOLEGGIO+ " TEXT DEFAULT NULL, "+
                 COL_DATA_RESTITUZIONE+ " TEXT DEFAULT NULL); "
         db?.execSQL(createPrestitiTable)
@@ -138,14 +138,11 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
             val dbHelper = DataBaseHelper(context)
             val db = dbHelper.writableDatabase
-            val currentDate = getCurrentDate()
-            val returnDate = getReturnDate(currentDate)
+
             val cv = ContentValues().apply {
                 put(COL_BOOK_TITOLO, titolo)
                 put(COL_BOOK_AUTORE, autore)
                 put(COL_ANNO, anno)
-                put(COL_DATA_NOLEGGIO,currentDate)
-                put(COL_DATA_RESTITUZIONE , returnDate)
 
             }
 
@@ -232,6 +229,24 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
     }
 
+    fun addPrestito(context: Context,userEmail: String, item: Int): Long {
+        val db = this.writableDatabase
+        val userId = getUserIdFromEmail(context,userEmail)
+        val currentDate = getCurrentDate()
+        val returnDate = getReturnDate(currentDate)
+        val values = ContentValues()
+        values.put(COL_USER_ID, userId)
+        values.put(COL_ITEM_ID, item)
+        values.put(COL_DATA_NOLEGGIO, currentDate)
+        values.put(COL_DATA_RESTITUZIONE, returnDate)
+
+        return db.insert(TABLE_PRESTITI, null, values)
+    }
+
+    private fun getUserIdFromEmail(context: Context, email: String): Int {
+         val sharedPreferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt(email, -1)
+    }
 
 
 

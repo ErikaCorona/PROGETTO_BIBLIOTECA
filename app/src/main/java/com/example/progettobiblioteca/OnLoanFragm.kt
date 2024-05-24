@@ -11,7 +11,7 @@ import android.widget.EditText
 class OnLoanFragm : Fragment() {
 
     private lateinit var nome: EditText
-    private lateinit var effetuaPrestito: Button
+    private lateinit var effettuaPrestito: Button
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
