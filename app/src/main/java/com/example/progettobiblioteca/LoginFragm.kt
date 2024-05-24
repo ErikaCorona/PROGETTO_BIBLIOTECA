@@ -2,16 +2,15 @@ package com.example.progettobiblioteca
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.fragment.app.Fragment
 
 
-
-    class LoginFragm : Fragment() {
+class LoginFragm : Fragment() {
         private lateinit var emailEditText: EditText
         private lateinit var passwordEditText: EditText
 
@@ -46,7 +45,10 @@ import android.widget.EditText
         cursor.close()
         db.close()
         if(loggedIn){
-            isAdmin(context, email)
+            val sharedPreferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString("email", email)
+            editor.apply()
         }else{
             val title = "errore"
             val message = "email o password non valido"
@@ -54,7 +56,8 @@ import android.widget.EditText
         }
     }
 
-    private fun isAdmin(context: Context, email:String){
+    companion object {
+        fun isAdmin(context: Context, email:String):Boolean{
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.readableDatabase
         val query = "SELECT * FROM $TABLE_NAME WHERE $COL_EMAIL = ? AND $COL_ADMIN = 1"
@@ -64,6 +67,6 @@ import android.widget.EditText
         cursor.close()
         db.close()
 
-        
+        return admin
     }
-}
+}}

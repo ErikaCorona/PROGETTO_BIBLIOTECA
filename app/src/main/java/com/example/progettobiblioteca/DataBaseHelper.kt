@@ -7,8 +7,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.widget.Switch
 import com.example.progettobiblioteca.Notifica.Companion.showNotification
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.Calendar
 
-val DATABASE_NAME="Library"
+ val DATABASE_NAME="Library"
 val TABLE_NAME="Users"
  val TABLE_NAME_BOOKS = "Libri"
  val TABLE_NAME_FILM= "Film"
@@ -22,17 +25,17 @@ val COL_ID= "_id"
  val COL_ANNO="AnnoBook"
  val COL_FILM_ANNO="AnnoFilm"
  val COL_MUSICA_ANNO="AnnoMusica"
- val COL_DATA_NOLEGGIO="DataNolleggioBook"
- val COL_DATA_RESTITUZIONE= "DataRestituzioneBook"
- val COL_FILM_DATA_NOLEGGIO="Data Nolleggio film"
- val COL_MUSICA_DATA_NOLEGGIO="DataNolleggioMusica"
- val COL_MUSICA_DATA_RESTITUZIONE= "DataRestituzioneMusica"
- val COL_FILM_DATA_RESTITUZIONE= "DataRestituzioneFilm"
+ val COL_DATA_NOLEGGIO="DataNoleggio"
+ val COL_DATA_RESTITUZIONE= "DataRestituzione"
  val COL_FILM_TITOLO= "TitoloFilm"
  val COL_FILM_REGISTA= "Regista"
  val COL_MUSICA_TITOLO="TitoloMucica"
  val COL_MUSICA_CANTANTE="Cantante"
  val COL_MUSICA_GENERE="Genere"
+ val TABLE_PRESTITI= "Prestiti"
+ val COL_USER_ID="user_id"
+ val COL_ITEM_ID ="item_id"
+ val COL_ITEM_TYPE ="item_type"
  val DATABASE_VERSION = 1
 
 class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,
@@ -50,18 +53,15 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 COL_BOOK_TITOLO + " TEXT, "+
                 COL_BOOK_AUTORE+ " TEXT, "+
-                COL_ANNO+ " INTEGER, "+
-                COL_DATA_NOLEGGIO + " TEXT, "+
-                COL_DATA_RESTITUZIONE+ " TEXT);"
+                COL_ANNO+ " INTEGER); "
         db?.execSQL(createBookTable)
 
         val createFilmTable= "CREATE TABLE " + TABLE_NAME_FILM + "(" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 COL_FILM_TITOLO+ " TEXT, "+
                 COL_FILM_REGISTA+ " TEXT, "+
-                COL_FILM_ANNO+ " INTEGER, "+
-                COL_FILM_DATA_NOLEGGIO + " TEXT, "+
-                COL_FILM_DATA_RESTITUZIONE+ " TEXT);"
+                COL_FILM_ANNO+ " INTEGER); "
+
         db?.execSQL(createFilmTable)
 
         val createMusicaTable= "CREATE TABLE " + TABLE_NAME_CANZONE + "(" +
@@ -69,10 +69,19 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 COL_MUSICA_TITOLO+ " TEXT, "+
                 COL_MUSICA_CANTANTE+ " TEXT, "+
                 COL_MUSICA_ANNO+ " INTEGER, "+
-                COL_MUSICA_GENERE+ " TEXT, "+
-                COL_MUSICA_DATA_NOLEGGIO + " TEXT, "+
-                        COL_MUSICA_DATA_RESTITUZIONE+ " TEXT);"
+                COL_MUSICA_GENERE+ " TEXT); "
         db?.execSQL(createMusicaTable)
+
+
+
+        val createPrestitiTable="CREATE TABLE "+ TABLE_PRESTITI + "(" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                COL_USER_ID+ " INTEGER NOT NULL, "+
+                COL_ITEM_ID+ " INTEGER NOT NULL, "+
+                COL_ITEM_TYPE+ " TEXT NOT NULL, "+
+                COL_DATA_NOLEGGIO+ " TEXT DEFAULT NULL, "+
+                COL_DATA_RESTITUZIONE+ " TEXT DEFAULT NULL); "
+        db?.execSQL(createPrestitiTable)
 
 
 
@@ -129,12 +138,18 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
             val dbHelper = DataBaseHelper(context)
             val db = dbHelper.writableDatabase
+            val currentDate = getCurrentDate()
+            val returnDate = getReturnDate(currentDate)
             val cv = ContentValues().apply {
                 put(COL_BOOK_TITOLO, titolo)
                 put(COL_BOOK_AUTORE, autore)
                 put(COL_ANNO, anno)
+                put(COL_DATA_NOLEGGIO,currentDate)
+                put(COL_DATA_RESTITUZIONE , returnDate)
 
             }
+
+
             val result = db.insert(TABLE_NAME_BOOKS, null, cv)
             db.close()
             if (result == -1L) {
@@ -147,6 +162,75 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
                 showNotification(context, title, message)
             }
         }
+
+    fun addFilm( context:Context, titolo:String, regista:String, anno:Int) {
+
+        val dbHelper = DataBaseHelper(context)
+        val db = dbHelper.writableDatabase
+        val currentDate = getCurrentDate()
+        val returnDate = getReturnDate(currentDate)
+        val cv = ContentValues().apply {
+            put(COL_FILM_TITOLO, titolo)
+            put(COL_FILM_REGISTA, regista)
+            put(COL_FILM_ANNO, anno)
+
+        }
+
+
+        val result = db.insert(TABLE_NAME_FILM, null, cv)
+        db.close()
+        if (result == -1L) {
+            val title = "Errore"
+            val message = "Errore durante l'aggiunta del film"
+            showNotification(context, title, message)
+        } else {
+            val title = "Successo"
+            val message = "film aggiunto con successo"
+            showNotification(context, title, message)
+        }
+    }
+
+    fun addMusic( context:Context, titolo:String, cantante:String, anno:Int, genere:String) {
+
+        val dbHelper = DataBaseHelper(context)
+        val db = dbHelper.writableDatabase
+        val currentDate = getCurrentDate()
+        val returnDate = getReturnDate(currentDate)
+        val cv = ContentValues().apply {
+            put(COL_MUSICA_TITOLO, titolo)
+            put(COL_MUSICA_CANTANTE, cantante)
+            put(COL_MUSICA_ANNO, anno)
+            put(COL_MUSICA_GENERE , genere)
+
+        }
+
+
+        val result = db.insert(TABLE_NAME_CANZONE, null, cv)
+        db.close()
+        if (result == -1L) {
+            val title = "Errore"
+            val message = "Errore durante l'aggiunta della canzone"
+            showNotification(context, title, message)
+        } else {
+            val title = "Successo"
+            val message = "canzone aggiunta con successo"
+            showNotification(context, title, message)
+        }
+    }
+    private fun getReturnDate(date: String): String {
+        val data=SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val calendar= Calendar.getInstance()
+        calendar.time= data.parse(date)!!
+        calendar.add(Calendar.MONTH,1)
+        return  data.format(calendar.time)
+
+    }
+
+    private fun getCurrentDate():String {
+        val data=SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return data.format(Calendar.getInstance().time)
+
+    }
 
 
 

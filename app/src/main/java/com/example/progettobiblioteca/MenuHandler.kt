@@ -1,5 +1,6 @@
 package com.example.progettobiblioteca
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.progettobiblioteca.LoginFragm.Companion.isAdmin
+import com.example.progettobiblioteca.Notifica.Companion.showNotification
 import com.google.android.material.navigation.NavigationView
 
 class MenuHandler : AppCompatActivity() {
@@ -24,10 +27,29 @@ class MenuHandler : AppCompatActivity() {
         toggle.syncState()
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
-
+        val sharedPreferences = getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", "")
         navView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.add->openFragment(AddFragm())
+                R.id.add->{
+                    if (email != null && email.isNotEmpty()) {
+                        if (isAdmin(this, email)) {
+                            openFragment(AddFragm())
+                        } else {
+                            Toast.makeText(
+                                applicationContext,
+                                "Non hai i permessi per questa azione",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Email non trovata. Effettua nuovamente il login.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
                 R.id.nav_search -> openFragment(SearchFragment())
 
                 R.id.nav_news -> Toast.makeText(
@@ -50,11 +72,7 @@ class MenuHandler : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                R.id.nav_logout -> Toast.makeText(
-                    applicationContext,
-                    " logout cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
+
 
             }
             true
@@ -79,4 +97,6 @@ class MenuHandler : AppCompatActivity() {
         }
         return true
     }
+
+
 }
