@@ -72,7 +72,7 @@ class MenuHandler : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-
+                R.id.nav_logout -> openFragment(LogoutFrag())
 
             }
             true
