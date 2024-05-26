@@ -30,7 +30,7 @@ val COL_ID= "_id"
  val COL_DATA_RESTITUZIONE= "DataRestituzione"
  val COL_FILM_TITOLO= "TitoloFilm"
  val COL_FILM_REGISTA= "Regista"
- val COL_MUSICA_TITOLO="TitoloMucica"
+ val COL_MUSICA_TITOLO="TitoloMusica"
  val COL_MUSICA_CANTANTE="Cantante"
  val COL_MUSICA_GENERE="Genere"
  val TABLE_PRESTITI= "Prestiti"
@@ -93,6 +93,8 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_BOOKS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_FILM")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_CANZONE")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_PRESTITI")
+
         onCreate(db)
     }
     private fun addUser(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
@@ -164,8 +166,6 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.writableDatabase
-        val currentDate = getCurrentDate()
-        val returnDate = getReturnDate(currentDate)
         val cv = ContentValues().apply {
             put(COL_FILM_TITOLO, titolo)
             put(COL_FILM_REGISTA, regista)
@@ -191,8 +191,6 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
 
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.writableDatabase
-        val currentDate = getCurrentDate()
-        val returnDate = getReturnDate(currentDate)
         val cv = ContentValues().apply {
             put(COL_MUSICA_TITOLO, titolo)
             put(COL_MUSICA_CANTANTE, cantante)
@@ -214,40 +212,6 @@ class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,n
             showNotification(context, title, message)
         }
     }
-    private fun getReturnDate(date: String): String {
-        val data=SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val calendar= Calendar.getInstance()
-        calendar.time= data.parse(date)!!
-        calendar.add(Calendar.MONTH,1)
-        return  data.format(calendar.time)
-
-    }
-
-    private fun getCurrentDate():String {
-        val data=SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return data.format(Calendar.getInstance().time)
-
-    }
-
-    fun addPrestito(context: Context,userEmail: String, item: Int): Long {
-        val db = this.writableDatabase
-        val userId = getUserIdFromEmail(context,userEmail)
-        val currentDate = getCurrentDate()
-        val returnDate = getReturnDate(currentDate)
-        val values = ContentValues()
-        values.put(COL_USER_ID, userId)
-        values.put(COL_ITEM_ID, item)
-        values.put(COL_DATA_NOLEGGIO, currentDate)
-        values.put(COL_DATA_RESTITUZIONE, returnDate)
-
-        return db.insert(TABLE_PRESTITI, null, values)
-    }
-
-    private fun getUserIdFromEmail(context: Context, email: String): Int {
-         val sharedPreferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(email, -1)
-    }
-
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.progettobiblioteca
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,18 +28,20 @@ class LoginFragm : Fragment() {
                 val email = emailEditText.text.toString()
                 val password = passwordEditText.text.toString()
                 if (email.isNotEmpty() && password.isNotEmpty()) {
-                    login(requireContext(), email, password)
+                   if( login(requireContext(), email, password)){
                     val intent = Intent(requireActivity(), MenuHandler::class.java)
                     startActivity(intent)
+                   }
                 }
             }
             return view
         }
-    private fun login(context: Context, email:String, password:String){
+    private fun login(context: Context, email:String, password:String):Boolean{
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.readableDatabase
+
         val query = "SELECT * FROM $TABLE_NAME WHERE $COL_EMAIL = ? AND $COL_PASSWORD = ?"
-        val cursor = db.rawQuery(query, arrayOf(email, password))
+        val cursor: Cursor = db.rawQuery(query, arrayOf(email, password))
 
         val loggedIn = cursor.count > 0
 
@@ -49,11 +52,14 @@ class LoginFragm : Fragment() {
             val editor = sharedPreferences.edit()
             editor.putString("email", email)
             editor.apply()
+            return true
         }else{
             val title = "errore"
             val message = "email o password non valido"
             Notifica.showNotification(context, title, message)
+            return false
         }
+
     }
 
     companion object {
