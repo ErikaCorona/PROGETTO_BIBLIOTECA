@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "600225130758",
-    "project_id": "progetto-biblioteca-cba0f",
-    "storage_bucket": "progetto-biblioteca-cba0f.appspot.com"
+    "project_number": "270851806069",
+    "firebase_url": "https://biblioteca-5ee26-default-rtdb.firebaseio.com",
+    "project_id": "biblioteca-5ee26",
+    "storage_bucket": "biblioteca-5ee26.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:600225130758:android:27cca5a6a34220a39c1687",
+        "mobilesdk_app_id": "1:270851806069:android:d80efbf839ff618792393c",
         "android_client_info": {
           "package_name": "com.example.progettobiblioteca"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB2TWNsDLxOTYMZchx8NL-niJyLj6NQEBI"
+          "current_key": "AIzaSyDIdYAG1T9bd3Zddmaj-nhVvf3XfKIecmo"
         }
       ],
       "services": {
