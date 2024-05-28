@@ -24,7 +24,8 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".MenuHandler">
+        <activity android:name=".MenuHandler"
+            android:exported="true">
         </activity>
 
     </application>
