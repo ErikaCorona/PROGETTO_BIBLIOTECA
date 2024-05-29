@@ -1,7 +1,9 @@
 [versions]
 agp = "8.3.2"
 firebaseBom = "33.0.0"
+firebaseCore = "21.1.1"
 firebaseFirestoreVersion = "25.0.0"
+googleFirebaseFirestore = "25.0.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -21,7 +23,9 @@ firebaseFirestore = "25.0.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
+firebase-firestore-v2303 = { module = "com.google.firebase:firebase-firestore", version.ref = "googleFirebaseFirestore" }
 firebase-firestore-v2440 = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestoreVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

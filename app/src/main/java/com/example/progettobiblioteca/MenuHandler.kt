@@ -1,20 +1,18 @@
-package com.example.progettobiblioteca
 
+package com.example.progettobiblioteca
+import OnLoanFragm
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import com.example.progettobiblioteca.LoginFragm.Companion.isAdmin
-import com.example.progettobiblioteca.Notifica.Companion.showNotification
 import com.google.android.material.navigation.NavigationView
 
 class MenuHandler : AppCompatActivity() {
-     lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,25 +20,27 @@ class MenuHandler : AppCompatActivity() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        toggle= ActionBarDrawerToggle(this,drawerLayout,R.string.open,R.string.close)
+        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
         val sharedPreferences = getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val email = sharedPreferences.getString("email", "")
-        navView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.add->{
-                    if (email != null && email.isNotEmpty()) {
-                        if (isAdmin(this, email)) {
-                            openFragment(AddFragm())
-                        } else {
-                            Toast.makeText(
-                                applicationContext,
-                                "Non hai i permessi per questa azione",
-                                Toast.LENGTH_SHORT
-                            ).show()
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.add -> {
+                    if (!email.isNullOrEmpty()) {
+                        LoginFragm.AdminManager.isAdmin(email) { isAdmin ->
+                            if (isAdmin) {
+                                openFragment(AddFragm())
+                            } else {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Non hai i permessi per questa azione",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     } else {
                         Toast.makeText(
@@ -51,52 +51,41 @@ class MenuHandler : AppCompatActivity() {
                     }
                 }
                 R.id.nav_search -> openFragment(SearchFragment())
-
                 R.id.nav_news -> Toast.makeText(
                     applicationContext,
                     " news cliccato",
                     Toast.LENGTH_SHORT
                 ).show()
-
                 R.id.nav_catalog -> Toast.makeText(
                     applicationContext,
                     " catalogo cliccato",
                     Toast.LENGTH_SHORT
                 ).show()
-
                 R.id.nav_loan -> openFragment(OnLoanFragm())
-
                 R.id.nav_settings -> Toast.makeText(
                     applicationContext,
                     " parametri cliccato",
                     Toast.LENGTH_SHORT
                 ).show()
-
                 R.id.nav_logout -> openFragment(LogoutFrag())
-
             }
             true
         }
-
     }
 
-    private fun openFragment(fragment: Fragment): Boolean {
-        val fragmentManager: FragmentManager = supportFragmentManager
-        fragmentManager.beginTransaction()
+    private fun openFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawers()
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)){
-
+        if (toggle.onOptionsItemSelected(item)) {
+            return true
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
-
-
 }

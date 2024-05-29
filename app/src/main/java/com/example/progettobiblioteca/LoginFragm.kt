@@ -1,78 +1,78 @@
 package com.example.progettobiblioteca
-import android.content.Context
+
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginFragm : Fragment() {
-        private lateinit var emailEditText: EditText
-        private lateinit var passwordEditText: EditText
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private val db = FirebaseFirestore.getInstance()
 
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View? {
-            val view= inflater.inflate(R.layout.fragment_login, container, false)
-            emailEditText = view.findViewById(R.id.login_email)
-            passwordEditText = view.findViewById(R.id.login_password)
-            val loginButton: Button = view.findViewById(R.id.login_button)
-            loginButton.setOnClickListener {
-                val email = emailEditText.text.toString()
-                val password = passwordEditText.text.toString()
-                if (email.isNotEmpty() && password.isNotEmpty()) {
-                   if( login(requireContext(), email, password)){
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_login, container, false)
+        emailEditText = view.findViewById(R.id.login_email)
+        passwordEditText = view.findViewById(R.id.login_password)
+        val loginButton: Button = view.findViewById(R.id.login_button)
+        loginButton.setOnClickListener {
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                loginUser(email, password)
+            } else {
+                Toast.makeText(requireContext(), "Inserisci email e password", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return view
+    }
+
+    private fun loginUser(email: String, password: String) {
+        db.collection("Users")
+            .whereEqualTo("Email", email)
+            .whereEqualTo("Password", password)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
                     val intent = Intent(requireActivity(), MenuHandler::class.java)
                     startActivity(intent)
-                   }
+                } else {
+                    Toast.makeText(requireContext(), "Email o password non validi", Toast.LENGTH_SHORT).show()
                 }
             }
-            return view
-        }
-    private fun login(context: Context, email:String, password:String):Boolean{
-        val dbHelper = DataBaseHelper(context)
-        val db = dbHelper.readableDatabase
-
-        val query = "SELECT * FROM $TABLE_NAME WHERE $COL_EMAIL = ? AND $COL_PASSWORD = ?"
-        val cursor: Cursor = db.rawQuery(query, arrayOf(email, password))
-
-        val loggedIn = cursor.count > 0
-
-        cursor.close()
-        db.close()
-        if(loggedIn){
-            val sharedPreferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString("email", email)
-            editor.apply()
-            return true
-        }else{
-            val title = "errore"
-            val message = "email o password non valido"
-            Notifica.showNotification(context, title, message)
-            return false
-        }
-
+            .addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Errore: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
-    companion object {
-        fun isAdmin(context: Context, email:String):Boolean{
-        val dbHelper = DataBaseHelper(context)
-        val db = dbHelper.readableDatabase
-        val query = "SELECT * FROM $TABLE_NAME WHERE $COL_EMAIL = ? AND $COL_ADMIN = 1"
-        val cursor = db.rawQuery(query, arrayOf(email))
 
-        val admin = cursor.count > 0
-        cursor.close()
-        db.close()
+    object AdminManager {
+    fun isAdmin(email: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
 
-        return admin
+        db.collection("Admins")
+            .document(email)
+            .get()
+            .addOnSuccessListener { document ->
+                val isAdmin = document.exists()
+                callback(isAdmin)
+            }
+            .addOnFailureListener { exception ->
+                // Gestione degli errori
+                // Puoi aggiungere un messaggio Toast o fare altro per gestire l'errore
+                callback(false)
+            }
+        }
     }
-}}
+}
+

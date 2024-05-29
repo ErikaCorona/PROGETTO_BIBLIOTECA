@@ -1,24 +1,22 @@
-package com.example.progettobiblioteca
-
-import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.progettobiblioteca.R
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class OnLoanFragm : Fragment() {
 
     private lateinit var nome: EditText
     private lateinit var effettuaPrestito: Button
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,65 +30,74 @@ class OnLoanFragm : Fragment() {
             val objectName = nome.text.toString()
             val context = requireContext()
             val userEmail = getUserEmail(context)
-            val itemId = getObjectIdFromName(context, objectName)
 
-            if (itemId != -1) {
-                addPrestito(context, userEmail, itemId)
-                Toast.makeText(context, "Prestito effettuato con successo", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Oggetto non trovato", Toast.LENGTH_SHORT).show()
+            // Ottieni l'ID dell'oggetto dal suo nome
+            getObjectIdFromName(context, objectName) { itemId ->
+                if (itemId != "") {
+                    // Aggiungi il prestito utilizzando Firestore
+                    addPrestito(context, userEmail, itemId)
+                } else {
+                    Toast.makeText(context, "Oggetto non trovato", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
         return view
     }
 
-    private fun getObjectIdFromName(context: Context, objectName: String): Int {
-        val db = DataBaseHelper(context).readableDatabase
+    private fun getObjectIdFromName(context: Context, objectName: String, callback: (String) -> Unit) {
+        // Cerca l'ID dell'oggetto nel Firestore
+        val collections = listOf("Libri", "Film", "Canzone")
+        var itemId = ""
 
-        // Query per cercare l'ID dell'oggetto nella tabella dei film
-        val filmQuery = "SELECT $COL_ID FROM $TABLE_NAME_FILM WHERE TitoloFilm = ?"
-        val filmCursor = db.rawQuery(filmQuery, arrayOf(objectName))
-        if (filmCursor.moveToFirst()) {
-            val filmId = filmCursor.getInt(0)
-            filmCursor.close()
-            return filmId
+        for (collection in collections) {
+            db.collection(collection)
+                .whereEqualTo("Titolo", objectName)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        itemId = documents.documents[0].id // Prendi l'ID del primo documento trovato
+                        callback(itemId)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(context, "Errore: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
         }
 
-        // Query per cercare l'ID dell'oggetto nella tabella dei libri
-        val libroQuery = "SELECT $COL_ID FROM $TABLE_NAME_BOOKS WHERE TitoloBook = ?"
-        val libroCursor = db.rawQuery(libroQuery, arrayOf(objectName))
-        if (libroCursor.moveToFirst()) {
-            val libroId = libroCursor.getInt(0)
-            libroCursor.close()
-            return libroId
+        // Se l'oggetto non è stato trovato in nessuna collezione
+        if (itemId.isEmpty()) {
+            callback("")
         }
-
-        // Query per cercare l'ID dell'oggetto nella tabella della musica
-        val musicaQuery = "SELECT $COL_ID FROM $TABLE_NAME_CANZONE WHERE TitoloMusica = ?"
-        val musicaCursor = db.rawQuery(musicaQuery, arrayOf(objectName))
-        if (musicaCursor.moveToFirst()) {
-            val musicaId = musicaCursor.getInt(0)
-            musicaCursor.close()
-            return musicaId
-        }
-
-        // Se l'oggetto non è stato trovato in nessuna tabella
-        return -1
     }
 
-    private fun addPrestito(context: Context, userEmail: String, item: Int): Long {
-        val userId = getUserIdFromEmail(context, userEmail)
-        val db = DataBaseHelper(context).writableDatabase
-        val currentDate = getCurrentDate()
-        val returnDate = getReturnDate(currentDate)
-        val values = ContentValues()
-        values.put(COL_USER_ID, userId)
-        values.put(COL_ITEM_ID, item)
-        values.put(COL_DATA_NOLEGGIO, currentDate)
-        values.put(COL_DATA_RESTITUZIONE, returnDate)
+    private fun addPrestito(context: Context, userEmail: String, itemId: String) {
+        // Ottieni l'ID dell'utente
+        getUserIdFromEmail(context, userEmail) { userId ->
+            if (userId != "") {
+                val currentDate = getCurrentDate()
+                val returnDate = getReturnDate(currentDate)
 
-        return db.insert(TABLE_PRESTITI, null, values)
+                // Aggiungi il prestito nel Firestore
+                val prestito = hashMapOf(
+                    "userId" to userId,
+                    "itemId" to itemId,
+                    "dataNoleggio" to currentDate,
+                    "dataRestituzione" to returnDate
+                )
+
+                db.collection("Prestiti")
+                    .add(prestito)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Prestito effettuato con successo", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { exception ->
+                        Toast.makeText(context, "Errore durante l'aggiunta del prestito: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Toast.makeText(context, "Utente non trovato", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun getUserEmail(context: Context): String {
@@ -98,19 +105,22 @@ class OnLoanFragm : Fragment() {
         return sharedPreferences.getString("email", "") ?: ""
     }
 
-    private fun getUserIdFromEmail(context: Context, email: String): Int {
-        val db = DataBaseHelper(context).readableDatabase
-        val query = "SELECT $COL_ID  FROM $TABLE_NAME WHERE Email = ?"
-        val cursor = db.rawQuery(query, arrayOf(email))
-
-        val userId = if (cursor.moveToFirst()) {
-            cursor.getInt(0)
-        } else {
-            -1 // Se l'utente non è stato trovato
-        }
-
-        cursor.close()
-        return userId
+    private fun getUserIdFromEmail(context: Context, userEmail: String, callback: (String) -> Unit) {
+        db.collection("Users")
+            .whereEqualTo("Email", userEmail)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val userId = documents.documents[0].id // Prendi l'ID del primo documento trovato
+                    callback(userId)
+                } else {
+                    callback("")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(context, "Errore: ${exception.message}", Toast.LENGTH_SHORT).show()
+                callback("")
+            }
     }
 
     private fun getCurrentDate(): String {

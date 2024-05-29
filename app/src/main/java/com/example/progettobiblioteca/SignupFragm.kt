@@ -1,8 +1,10 @@
 package com.example.progettobiblioteca
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import androidx.fragment.app.Fragment
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class SignupFragm : Fragment() {
 
@@ -19,7 +24,7 @@ class SignupFragm : Fragment() {
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var admin: Switch
 
-
+    private val db: FirebaseFirestore by lazy { Firebase.firestore }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,58 +33,72 @@ class SignupFragm : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_signup, container, false)
 
-
         emailEditText = rootView.findViewById(R.id.signup_email)
         passwordEditText = rootView.findViewById(R.id.signup_password)
         confPassEditText = rootView.findViewById(R.id.signup_confirm)
         admin = rootView.findViewById(R.id.adminSwitch)
 
-
         val registerButton = rootView.findViewById<Button>(R.id.signup_button)
         registerButton.setOnClickListener {
-
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            val confirm=confPassEditText.text.toString()
+            val confirm = confPassEditText.text.toString()
 
 
             if (Verifiche.isValidEmail(email) && Verifiche.isValidPassword(password) && Verifiche.confirmPassword(password, confirm)) {
-
-                val myDB = DataBaseHelper(requireContext())
                 val trimmedEmail = email.trim()
                 val trimmedPassword = password.trim()
-                myDB.checkEmail(requireContext(),trimmedEmail, trimmedPassword, admin)
-                val intent = Intent(context, MainActivity_new::class.java)
-                startActivity(intent)
 
+                // Check if the email already exists in Firestore
+                db.collection("users").document(trimmedEmail).get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // Email already exists
+                            showNotification("Errore", "Email già esistente")
+                        } else {
+                            // Create a new user in Firestore
+                            val user = hashMapOf(
+                                "email" to trimmedEmail,
+                                "password" to trimmedPassword,
+                                "admin" to admin.isChecked
+                            )
+
+                            db.collection("users").document(trimmedEmail).set(user)
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "DocumentSnapshot added with ID: $trimmedEmail")
+
+                                    // Start the MainActivity
+                                    val intent = Intent(context, MainActivity_new::class.java)
+                                    startActivity(intent)
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w(TAG, "Error adding document", e)
+                                    showNotification("Errore", "Si è verificato un errore durante la registrazione. Riprova.")
+                                }
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Error checking document", e)
+                        showNotification("Errore", "Si è verificato un errore durante la registrazione. Riprova.")
+                    }
             } else if (!Verifiche.isValidEmail(email)) {
-                val context: Context = requireContext()
-                val title = "errore"
-                val message = "email non valida"
-                Notifica.showNotification(context, title, message)
+                showNotification("Errore", "Email non valida")
             } else if (!Verifiche.isValidPassword(password)) {
-                val context: Context = requireContext()
-                val title = "errore"
-                val message = "password errata"
-                Notifica.showNotification(context, title, message)
-            } else if (Verifiche.isValidPassword(password) && Verifiche.confirmPassword(password, confirm)) {
-                val context: Context = requireContext()
-                val title = "successo"
-                val message = "password corrispondenti"
-                Notifica.showNotification(context, title, message)
-            } else {
-                val context: Context = requireContext()
-                val title = "errore"
-                val message = "password non corrispondenti"
-                Notifica.showNotification(context, title, message)
+                showNotification("Errore", "Password errata")
+            } else if (!Verifiche.confirmPassword(password, confirm)) {
+                showNotification("Errore", "Password non corrispondenti")
             }
-
-
         }
 
         return rootView
     }
 
+    private fun showNotification(title: String, message: String) {
+        val context: Context = requireContext()
+        Notifica.showNotification(context, title, message)
+    }
 
-
+    companion object {
+        private const val TAG = "SignupFragm"
+    }
 }

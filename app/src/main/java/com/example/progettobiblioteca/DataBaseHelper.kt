@@ -1,220 +1,125 @@
- package com.example.progettobiblioteca
+package com.example.progettobiblioteca
 
-import android.annotation.SuppressLint
-import android.content.ClipData.Item
-import android.content.ContentValues
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import android.widget.Switch
 import com.example.progettobiblioteca.Notifica.Companion.showNotification
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.Calendar
-
- val DATABASE_NAME="Library"
-val TABLE_NAME="Users"
- val TABLE_NAME_BOOKS = "Libri"
- val TABLE_NAME_FILM= "Film"
- val TABLE_NAME_CANZONE= "Canzone"
-val COL_EMAIL="Email"
-val COL_PASSWORD="Password"
-val COL_ADMIN="Admin"
-val COL_ID= "_id"
- val COL_BOOK_TITOLO= "TitoloBook"
- val COL_BOOK_AUTORE= "Autore"
- val COL_ANNO="AnnoBook"
- val COL_FILM_ANNO="AnnoFilm"
- val COL_MUSICA_ANNO="AnnoMusica"
- val COL_DATA_NOLEGGIO="DataNoleggio"
- val COL_DATA_RESTITUZIONE= "DataRestituzione"
- val COL_FILM_TITOLO= "TitoloFilm"
- val COL_FILM_REGISTA= "Regista"
- val COL_MUSICA_TITOLO="TitoloMusica"
- val COL_MUSICA_CANTANTE="Cantante"
- val COL_MUSICA_GENERE="Genere"
- val TABLE_PRESTITI= "Prestiti"
- val COL_USER_ID="user_id"
- val COL_ITEM_ID ="item_id"
-
- val DATABASE_VERSION = 1
-
-class DataBaseHelper(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,
-    DATABASE_VERSION) {
-    @SuppressLint("SuspiciousIndentation")
-    override fun onCreate(db: SQLiteDatabase?) {
-        val createUserTable = "CREATE TABLE " + TABLE_NAME+ "(" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL_EMAIL + " TEXT, " +
-                COL_PASSWORD + " TEXT, " +
-                COL_ADMIN + " INTEGER);"
-        db?.execSQL(createUserTable)
-
-        val createBookTable= "CREATE TABLE " + TABLE_NAME_BOOKS+ "(" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                COL_BOOK_TITOLO + " TEXT, "+
-                COL_BOOK_AUTORE+ " TEXT, "+
-                COL_ANNO+ " INTEGER); "
-        db?.execSQL(createBookTable)
-
-        val createFilmTable= "CREATE TABLE " + TABLE_NAME_FILM + "(" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                COL_FILM_TITOLO+ " TEXT, "+
-                COL_FILM_REGISTA+ " TEXT, "+
-                COL_FILM_ANNO+ " INTEGER); "
-
-        db?.execSQL(createFilmTable)
-
-        val createMusicaTable= "CREATE TABLE " + TABLE_NAME_CANZONE + "(" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                COL_MUSICA_TITOLO+ " TEXT, "+
-                COL_MUSICA_CANTANTE+ " TEXT, "+
-                COL_MUSICA_ANNO+ " INTEGER, "+
-                COL_MUSICA_GENERE+ " TEXT); "
-        db?.execSQL(createMusicaTable)
+import com.google.firebase.firestore.FirebaseFirestore
 
 
+class DataBaseHelper(private val context: Context) {
+    private val db = FirebaseFirestore.getInstance()
+    companion object {
+        const val COLLECTION_USERS = "Users"
+        const val COLLECTION_BOOKS = "Libri"
+        const val COLLECTION_FILM = "Film"
+        const val COLLECTION_MUSIC = "Canzone"
 
-        val createPrestitiTable="CREATE TABLE "+ TABLE_PRESTITI + "(" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                COL_USER_ID+ " INTEGER NOT NULL, "+
-                COL_ITEM_ID+ " INTEGER NOT NULL, "+
-                COL_DATA_NOLEGGIO+ " TEXT DEFAULT NULL, "+
-                COL_DATA_RESTITUZIONE+ " TEXT DEFAULT NULL); "
-        db?.execSQL(createPrestitiTable)
-
-
-
-
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_BOOKS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_FILM")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_CANZONE")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_PRESTITI")
-
-        onCreate(db)
-    }
-    private fun addUser(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
-        val db = this.writableDatabase
-        val cv = ContentValues()
-        cv.put(COL_EMAIL, email)
-        cv.put(COL_PASSWORD, password)
-        cv.put(COL_ADMIN,if (admin.isChecked) 1 else 0)
-        val result = db.insert(TABLE_NAME, null, cv)
-        if (result == -1L) {
-            val title = "failed"
-            val message = " errore nella registrazione"
-            showNotification(context, title, message)
-        } else {
-            val title = "success"
-            val message = " utente registrato con successo"
-            showNotification(context, title, message)
+        const val COL_EMAIL = "Email"
+        const val COL_PASSWORD = "Password"
+        const val COL_ADMIN = "Admin"
+        const val COL_BOOK_TITOLO = "TitoloBook"
+        const val COL_BOOK_AUTORE = "Autore"
+        const val COL_ANNO = "Anno"
+        const val COL_FILM_TITOLO = "TitoloFilm"
+        const val COL_FILM_REGISTA = "Regista"
+        const val COL_FILM_ANNO = "AnnoFilm"
+        const val COL_MUSICA_TITOLO = "TitoloMusica"
+        const val COL_MUSICA_CANTANTE = "Cantante"
+        const val COL_MUSICA_ANNO = "AnnoMusica"
+        const val COL_MUSICA_GENERE = "Genere"
         }
-    }
+    // Aggiungi utente a Firestore
+    private fun addUser(email: String, password: String, admin: Switch) {
+        val user = hashMapOf(
+            COL_EMAIL to email,
+            COL_PASSWORD to password,
+            COL_ADMIN to if (admin.isChecked) 1 else 0
+        )
 
-    fun checkEmail(context: Context, email: String, password: String, @SuppressLint("UseSwitchCompatOrMaterialCode") admin: Switch) {
-        val dbHelper = DataBaseHelper(context)
-        val db = dbHelper.readableDatabase
-        val query = "SELECT $COL_EMAIL FROM $TABLE_NAME WHERE $COL_EMAIL = ?"
-        val cursor = db.rawQuery(query, arrayOf(email))
-
-        val emailExists = cursor.count > 0
-        cursor.close()
-
-         if (emailExists) {
-            val title = "errore"
-            val message = "Email già presente nel database"
-            showNotification(context, title, message)
-
-        } else {
-            dbHelper.addUser(context, email,password,admin)
-
-        }
-    }
-
-
-        fun addBook( context:Context, titolo:String, autore:String, anno:Int) {
-
-            val dbHelper = DataBaseHelper(context)
-            val db = dbHelper.writableDatabase
-
-            val cv = ContentValues().apply {
-                put(COL_BOOK_TITOLO, titolo)
-                put(COL_BOOK_AUTORE, autore)
-                put(COL_ANNO, anno)
-
+        // Usa `set` con ID univoco, ad esempio email come ID
+        db.collection(COLLECTION_USERS).document(email).set(user)
+            .addOnSuccessListener {
+                showNotification(context, "Successo", "Utente registrato con successo")
             }
-
-
-            val result = db.insert(TABLE_NAME_BOOKS, null, cv)
-            db.close()
-            if (result == -1L) {
-                val title = "Errore"
-                val message = "Errore durante l'aggiunta del libro"
-                showNotification(context, title, message)
-            } else {
-                val title = "Successo"
-                val message = "Libro aggiunto con successo"
-                showNotification(context, title, message)
+            .addOnFailureListener { exception ->
+                showNotification(context, "Errore", "Errore nella registrazione: ${exception.message}")
             }
-        }
-
-    fun addFilm( context:Context, titolo:String, regista:String, anno:Int) {
-
-        val dbHelper = DataBaseHelper(context)
-        val db = dbHelper.writableDatabase
-        val cv = ContentValues().apply {
-            put(COL_FILM_TITOLO, titolo)
-            put(COL_FILM_REGISTA, regista)
-            put(COL_FILM_ANNO, anno)
-
-        }
-
-
-        val result = db.insert(TABLE_NAME_FILM, null, cv)
-        db.close()
-        if (result == -1L) {
-            val title = "Errore"
-            val message = "Errore durante l'aggiunta del film"
-            showNotification(context, title, message)
-        } else {
-            val title = "Successo"
-            val message = "film aggiunto con successo"
-            showNotification(context, title, message)
-        }
-    }
-
-    fun addMusic( context:Context, titolo:String, cantante:String, anno:Int, genere:String) {
-
-        val dbHelper = DataBaseHelper(context)
-        val db = dbHelper.writableDatabase
-        val cv = ContentValues().apply {
-            put(COL_MUSICA_TITOLO, titolo)
-            put(COL_MUSICA_CANTANTE, cantante)
-            put(COL_MUSICA_ANNO, anno)
-            put(COL_MUSICA_GENERE , genere)
-
-        }
-
-
-        val result = db.insert(TABLE_NAME_CANZONE, null, cv)
-        db.close()
-        if (result == -1L) {
-            val title = "Errore"
-            val message = "Errore durante l'aggiunta della canzone"
-            showNotification(context, title, message)
-        } else {
-            val title = "Successo"
-            val message = "canzone aggiunta con successo"
-            showNotification(context, title, message)
-        }
     }
 
 
+        // Controlla se l'email esiste già
+    fun checkEmail(email: String, password: String, admin: Switch) {
+        db.collection(COLLECTION_USERS)
+            .whereEqualTo(COL_EMAIL, email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    addUser(email, password, admin)
+                } else {
+                    showNotification(context, "Errore", "Email già presente nel database")
+                }
+            }
+            .addOnFailureListener { exception ->
+                showNotification(context, "Errore", "Errore nel controllo email: ${exception.message}")
+            }
+    }
+
+    // Aggiungi un libro a Firestore
+    fun addBook(titolo: String, autore: String, anno: Int? = null) {
+        val book = hashMapOf(
+            COL_BOOK_TITOLO to titolo,
+            COL_BOOK_AUTORE to autore,
+            COL_ANNO to anno
+        )
+
+        db.collection(COLLECTION_BOOKS).add(book)
+            .addOnSuccessListener {documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Libro aggiunto con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta del libro")
+            }
+    }
+
+    // Aggiungi un film a Firestore
+    fun addFilm(titolo: String, regista: String, anno: Int? = null) {
+        val film = hashMapOf(
+            COL_FILM_TITOLO to titolo,
+            COL_FILM_REGISTA to regista,
+            COL_FILM_ANNO to anno
+        )
+
+        db.collection(COLLECTION_FILM).add(film)
+            .addOnSuccessListener {documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Film aggiunto con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta del film")
+            }
+    }
+
+    // Aggiungi una canzone a Firestore
+    fun addMusic(titolo: String, cantante: String, anno: Int? = null, genere: String) {
+        val music = hashMapOf(
+            COL_MUSICA_TITOLO to titolo,
+            COL_MUSICA_CANTANTE to cantante,
+            COL_MUSICA_ANNO to anno,
+            COL_MUSICA_GENERE to genere
+        )
+
+        db.collection(COLLECTION_MUSIC).add(music)
+            .addOnSuccessListener { documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Musica aggiunta con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta della musica")
+            }
+    }
 }
-
-
-
