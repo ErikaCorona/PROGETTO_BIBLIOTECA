@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".SignupFragm">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,35 +38,60 @@
                 android:hint="Email"
                 android:padding="8dp" />
 
-            <EditText
-                android:id="@+id/signup_password"
+            <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/testoedit_bg"
-                android:drawableLeft="@drawable/baseline_lock_24"
-                android:drawableRight="@drawable/baseline_vpn_key_24"
-                android:drawableEnd="@drawable/baseline_vpn_key_off_24"
-                android:drawablePadding="8dp"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:padding="8dp" />
+                android:layout_marginTop="10dp">
 
-            <EditText
-                android:id="@+id/signup_confirm"
+                <EditText
+                    android:id="@+id/signup_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/testoedit_bg"
+                    android:drawableLeft="@drawable/baseline_lock_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:padding="8dp" />
+
+                <ImageView
+                    android:id="@+id/password_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:padding="16dp"
+                    android:src="@drawable/baseline_vpn_key_off_24" />
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/testoedit_bg"
-                android:drawableLeft="@drawable/baseline_password_24"
-                android:drawableRight="@drawable/baseline_vpn_key_24"
-                android:drawableEnd="@drawable/baseline_vpn_key_off_24"
-                android:drawablePadding="8dp"
-                android:hint="Confirm Password"
-                android:inputType="textPassword"
-                android:padding="8dp" />
+                android:layout_marginTop="10dp">
+
+                <EditText
+                    android:id="@+id/signup_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/testoedit_bg"
+                    android:drawableLeft="@drawable/baseline_password_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Confirm Password"
+                    android:inputType="textPassword"
+                    android:padding="8dp" />
+
+                <ImageView
+                    android:id="@+id/confirm_password_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:padding="16dp"
+                    android:src="@drawable/baseline_vpn_key_off_24" />
+            </RelativeLayout>
+
             <Switch
                 android:id="@+id/adminSwitch"
                 android:layout_width="wrap_content"
@@ -75,6 +101,7 @@
                 android:textColor="@color/purdarkgreen"
                 android:text="Admin"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
+
             <Button
                 android:id="@+id/signup_button"
                 android:layout_width="300dp"

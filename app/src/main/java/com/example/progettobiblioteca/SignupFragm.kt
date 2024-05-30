@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Switch
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +24,11 @@ class SignupFragm : Fragment() {
     private lateinit var confPassEditText: EditText
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var admin: Switch
+    private var isPasswordVisible = false
+    private var isConfirmVisible = false
+    private lateinit var passwordToggle: ImageView
+    private lateinit var confirmToggle: ImageView
+
 
     private lateinit var db: FirebaseFirestore
 
@@ -35,9 +43,16 @@ class SignupFragm : Fragment() {
         passwordEditText = rootView.findViewById(R.id.signup_password)
         confPassEditText = rootView.findViewById(R.id.signup_confirm)
         admin = rootView.findViewById(R.id.adminSwitch)
+        passwordToggle = rootView.findViewById(R.id.password_toggle)
+        confirmToggle = rootView.findViewById(R.id.confirm_password_toggle)
+
+
 
         // Inizializza db usando l'istanza fornita da MyApplication
         db = (requireActivity().application as MyApplication).db
+        passwordToggle.setOnClickListener { togglePasswordVisibility(passwordEditText) }
+        confirmToggle.setOnClickListener { togglePasswordVisibility(confPassEditText) }
+
 
         val registerButton = rootView.findViewById<Button>(R.id.signup_button)
         registerButton.setOnClickListener {
@@ -100,4 +115,34 @@ class SignupFragm : Fragment() {
     companion object {
         private const val TAG = "SignupFragm"
     }
+
+    private fun togglePasswordVisibility(editText: EditText) {
+        if (editText == passwordEditText) {
+            isPasswordVisible = !isPasswordVisible
+            val transformationMethod = if (isPasswordVisible) {
+                HideReturnsTransformationMethod.getInstance()
+            } else {
+                PasswordTransformationMethod.getInstance()
+            }
+            editText.transformationMethod = transformationMethod
+            editText.setSelection(editText.text.length)
+        } else if (editText == confPassEditText) {
+            isConfirmVisible = !isConfirmVisible
+            val transformationMethod = if (isConfirmVisible) {
+                HideReturnsTransformationMethod.getInstance()
+            } else {
+                PasswordTransformationMethod.getInstance()
+            }
+            editText.transformationMethod = transformationMethod
+            editText.setSelection(editText.text.length)
+        }
+    }
+
+
+
+
+
+
+
+
 }

@@ -32,7 +32,7 @@ class OnLoanFragm : Fragment() {
 
         effettuaPrestito.setOnClickListener {
             val objectName = nome.text.toString().trim()
-                .toLowerCase(Locale.getDefault()) // Normalizza la stringa di ricerca
+                .lowercase(Locale.getDefault()) // Normalizza la stringa di ricerca
             val context = requireContext()
             val userEmail = getUserEmail(context)
 
@@ -64,7 +64,7 @@ class OnLoanFragm : Fragment() {
                 .get()
                 .addOnSuccessListener { documents ->
                     for (document in documents) {
-                        val title = document.getString("Titolo")?.toLowerCase(Locale.getDefault())
+                        val title = document.getString("Titolo")?.lowercase(Locale.getDefault())
                             ?: "" // Normalizza i titoli nel database
                         if (title == objectName) {
                             itemId = document.id // Prendi l'ID del primo documento trovato
