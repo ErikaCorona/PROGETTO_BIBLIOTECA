@@ -46,13 +46,16 @@ class SignupFragm : Fragment() {
         passwordToggle = rootView.findViewById(R.id.password_toggle)
         confirmToggle = rootView.findViewById(R.id.confirm_password_toggle)
 
-
-
         // Inizializza db usando l'istanza fornita da MyApplication
         db = (requireActivity().application as MyApplication).db
-        passwordToggle.setOnClickListener { togglePasswordVisibility(passwordEditText) }
-        confirmToggle.setOnClickListener { togglePasswordVisibility(confPassEditText) }
 
+        passwordToggle.setOnClickListener {
+            isPasswordVisible = togglePasswordVisibility(passwordEditText, passwordToggle, isPasswordVisible)
+        }
+
+        confirmToggle.setOnClickListener {
+            isConfirmVisible = togglePasswordVisibility(confPassEditText, confirmToggle, isConfirmVisible)
+        }
 
         val registerButton = rootView.findViewById<Button>(R.id.signup_button)
         registerButton.setOnClickListener {
@@ -116,33 +119,19 @@ class SignupFragm : Fragment() {
         private const val TAG = "SignupFragm"
     }
 
-    private fun togglePasswordVisibility(editText: EditText) {
-        if (editText == passwordEditText) {
-            isPasswordVisible = !isPasswordVisible
-            val transformationMethod = if (isPasswordVisible) {
+
+    private fun togglePasswordVisibility(editText: EditText, toggleImageView: ImageView, isPasswordVisible: Boolean): Boolean {
+            val newVisibilityState = !isPasswordVisible
+            val transformationMethod = if (newVisibilityState) {
+                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_24) // Imposta l'icona per la password visibile
                 HideReturnsTransformationMethod.getInstance()
             } else {
+                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_off_24) // Imposta l'icona per la password nascosta
                 PasswordTransformationMethod.getInstance()
             }
             editText.transformationMethod = transformationMethod
             editText.setSelection(editText.text.length)
-        } else if (editText == confPassEditText) {
-            isConfirmVisible = !isConfirmVisible
-            val transformationMethod = if (isConfirmVisible) {
-                HideReturnsTransformationMethod.getInstance()
-            } else {
-                PasswordTransformationMethod.getInstance()
-            }
-            editText.transformationMethod = transformationMethod
-            editText.setSelection(editText.text.length)
-        }
+            return newVisibilityState
     }
-
-
-
-
-
-
-
 
 }
