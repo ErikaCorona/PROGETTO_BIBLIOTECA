@@ -8,10 +8,6 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <!-- <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logoimg" /> -->
 
     <TextView
         android:layout_width="wrap_content"
@@ -21,6 +17,7 @@
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

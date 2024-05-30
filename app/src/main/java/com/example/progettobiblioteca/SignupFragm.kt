@@ -71,7 +71,7 @@ class SignupFragm : Fragment() {
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
                             // Email già esistente
-                            showNotification("Errore", "Email già esistente")
+                            "Errore".showNotification("Email già esistente")
                         } else {
                             // Crea un nuovo utente in Firestore
                             val user = hashMapOf(
@@ -90,29 +90,29 @@ class SignupFragm : Fragment() {
                                 }
                                 .addOnFailureListener { e ->
                                     Log.w(TAG, "Error adding document", e)
-                                    showNotification("Errore", "Si è verificato un errore durante la registrazione. Riprova.")
+                                    "Errore".showNotification("Si è verificato un errore durante la registrazione. Riprova.")
                                 }
                         }
                     }
                     .addOnFailureListener { e ->
                         Log.w(TAG, "Error checking document", e)
-                        showNotification("Errore", "Si è verificato un errore durante la registrazione. Riprova.")
+                        "Errore".showNotification("Si è verificato un errore durante la registrazione. Riprova.")
                     }
             } else if (!Verifiche.isValidEmail(email)) {
-                showNotification("Errore", "Email non valida")
+                "Errore".showNotification("Email non valida")
             } else if (!Verifiche.isValidPassword(password)) {
-                showNotification("Errore", "Password errata")
+                "Errore".showNotification("Password errata")
             } else if (!Verifiche.confirmPassword(password, confirm)) {
-                showNotification("Errore", "Password non corrispondenti")
+                "Errore".showNotification("Password non corrispondenti")
             }
         }
 
         return rootView
     }
 
-    private fun showNotification(title: String, message: String) {
+    private fun String.showNotification(message: String) {
         val context: Context = requireContext()
-        Notifica.showNotification(context, title, message)
+        Notifica.showNotification(context, this, message)
     }
 
     companion object {
@@ -123,10 +123,10 @@ class SignupFragm : Fragment() {
     private fun togglePasswordVisibility(editText: EditText, toggleImageView: ImageView, isPasswordVisible: Boolean): Boolean {
             val newVisibilityState = !isPasswordVisible
             val transformationMethod = if (newVisibilityState) {
-                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_24) // Imposta l'icona per la password visibile
+                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_24)
                 HideReturnsTransformationMethod.getInstance()
             } else {
-                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_off_24) // Imposta l'icona per la password nascosta
+                toggleImageView.setImageResource(R.drawable.baseline_vpn_key_off_24)
                 PasswordTransformationMethod.getInstance()
             }
             editText.transformationMethod = transformationMethod
