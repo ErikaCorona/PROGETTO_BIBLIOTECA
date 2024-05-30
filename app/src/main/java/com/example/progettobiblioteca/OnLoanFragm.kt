@@ -1,4 +1,3 @@
-
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -32,7 +31,7 @@ class OnLoanFragm : Fragment() {
         effettuaPrestito = view.findViewById(R.id.loan_button)
 
         effettuaPrestito.setOnClickListener {
-            val objectName = nome.text.toString()
+            val objectName = nome.text.toString().trim().toLowerCase(Locale.getDefault()) // Normalizza la stringa di ricerca
             val context = requireContext()
             val userEmail = getUserEmail(context)
 
@@ -51,55 +50,79 @@ class OnLoanFragm : Fragment() {
     }
 
     private fun getObjectIdFromName(context: Context, objectName: String, callback: (String) -> Unit) {
-        // Cerca l'ID dell'oggetto nel Firestore
         val collections = listOf("Libri", "Film", "Canzone")
         var itemId = ""
+        var found = false
 
         for (collection in collections) {
             db.collection(collection)
-                .whereEqualTo("Titolo" , objectName)
                 .get()
                 .addOnSuccessListener { documents ->
-                    if (!documents.isEmpty) {
-                        itemId = documents.documents[0].id // Prendi l'ID del primo documento trovato
-                        callback(itemId)
-
+                    for (document in documents) {
+                        val title = document.getString("Titolo")?.toLowerCase(Locale.getDefault()) ?: "" // Normalizza i titoli nel database
+                        if (title == objectName) {
+                            itemId = document.id // Prendi l'ID del primo documento trovato
+                            found = true
+                            callback(itemId)
+                            return@addOnSuccessListener
+                        }
                     }
-
+                    if (!found) {
+                        callback("") // Se l'oggetto non è stato trovato in nessuna collezione
+                    }
                 }
-
-        }
-        Toast.makeText(context, "Oggetto" + itemId, Toast.LENGTH_SHORT).show()
-
-        // Se l'oggetto non è stato trovato in nessuna collezione
-        if (itemId.isEmpty()) {
-            Toast.makeText(context, "Errore: ogg non trov", Toast.LENGTH_SHORT).show()
-            callback("")
+                .addOnFailureListener { exception ->
+                    Toast.makeText(context, "Errore durante la ricerca: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    callback("")
+                }
         }
     }
 
     private fun addPrestito(context: Context, userEmail: String, itemId: String) {
-        // Ottieni l'ID dell'utente
         getUserIdFromEmail(context, userEmail) { userId ->
             if (userId != "") {
-                val currentDate = getCurrentDate()
-                val returnDate = getReturnDate(currentDate)
-
-                // Aggiungi il prestito nel Firestore
-                val prestito = hashMapOf(
-                    DataBaseHelper.COL_PRESTITI_USERID to userId,
-                    DataBaseHelper.COL_PRESTITI_ITEMID to itemId,
-                    DataBaseHelper.COL_PRESTITI_DATANOLEGGIO to currentDate,
-                    DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE to returnDate
-                )
-
                 db.collection(COLLECTION_PRESTITI)
-                    .add(prestito)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Prestito effettuato con successo", Toast.LENGTH_SHORT).show()
+                    .whereEqualTo(DataBaseHelper.COL_PRESTITI_USERID, userId)
+                    .whereEqualTo(DataBaseHelper.COL_PRESTITI_ITEMID, itemId)
+                    .get()
+                    .addOnSuccessListener { userDocuments ->
+                        if (!userDocuments.isEmpty) {
+                            Toast.makeText(context, "L'oggetto è già presente nella sezione 'i miei prestiti'", Toast.LENGTH_LONG).show()
+                        } else {
+                            db.collection(COLLECTION_PRESTITI)
+                                .whereEqualTo(DataBaseHelper.COL_PRESTITI_ITEMID, itemId)
+                                .get()
+                                .addOnSuccessListener { itemDocuments ->
+                                    if (!itemDocuments.isEmpty) {
+                                        val prestitoDoc = itemDocuments.documents[0]
+                                        val dataRestituzione = prestitoDoc.getString(DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE) ?: ""
+                                        Toast.makeText(context, "L'oggetto sarà disponibile per il prestito dopo il $dataRestituzione", Toast.LENGTH_LONG).show()
+                                    } else {
+                                        val currentDate = getCurrentDate()
+                                        val returnDate = getReturnDate(currentDate)
+                                        val prestito = hashMapOf(
+                                            DataBaseHelper.COL_PRESTITI_USERID to userId,
+                                            DataBaseHelper.COL_PRESTITI_ITEMID to itemId,
+                                            DataBaseHelper.COL_PRESTITI_DATANOLEGGIO to currentDate,
+                                            DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE to returnDate
+                                        )
+                                        db.collection(COLLECTION_PRESTITI)
+                                            .add(prestito)
+                                            .addOnSuccessListener {
+                                                Toast.makeText(context, "Prestito effettuato con successo", Toast.LENGTH_SHORT).show()
+                                            }
+                                            .addOnFailureListener { exception ->
+                                                Toast.makeText(context, "Errore durante l'aggiunta del prestito: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                            }
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(context, "Errore durante il controllo del prestito: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                     }
                     .addOnFailureListener { exception ->
-                        Toast.makeText(context, "Errore durante l'aggiunta del prestito: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Errore durante il controllo del prestito: ${exception.message}", Toast.LENGTH_SHORT).show()
                     }
             } else {
                 Toast.makeText(context, "Utente non trovato", Toast.LENGTH_SHORT).show()
@@ -118,7 +141,7 @@ class OnLoanFragm : Fragment() {
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val userId = documents.documents[0].id // Prendi l'ID del primo documento trovato
+                    val userId = documents.documents[0].id
                     callback(userId)
                 } else {
                     callback("")
@@ -139,7 +162,7 @@ class OnLoanFragm : Fragment() {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val calendar = Calendar.getInstance()
         calendar.time = sdf.parse(currentDate)!!
-        calendar.add(Calendar.DAY_OF_MONTH, 30) // Esempio: 30 giorni dopo
+        calendar.add(Calendar.DAY_OF_MONTH, 30)
         return sdf.format(calendar.time)
     }
 }
