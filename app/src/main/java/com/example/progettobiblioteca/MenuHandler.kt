@@ -3,6 +3,8 @@ package com.example.progettobiblioteca
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -19,13 +21,20 @@ class MenuHandler : AppCompatActivity() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
+
         toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+
         val sharedPreferences = getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val email = sharedPreferences.getString("email", "")
+        if (!email.isNullOrEmpty()) {
+            updateUserEmail(email)
+        }
+
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.add -> {
@@ -86,5 +95,12 @@ class MenuHandler : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun updateUserEmail(email: String) {
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val headerView: View = navigationView.getHeaderView(0)
+        val userEmailTextView: TextView = headerView.findViewById(R.id.emailTextView)
+        userEmailTextView.text = email
     }
 }

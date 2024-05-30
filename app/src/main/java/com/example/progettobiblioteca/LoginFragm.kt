@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.progettobiblioteca.DataBaseHelper.Companion.COLLECTION_USERS
@@ -22,7 +21,6 @@ class LoginFragm : Fragment() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var passwordToggle: ImageView
-    private lateinit var userEmailTextView: TextView
     private lateinit var db: FirebaseFirestore
     private var isPasswordVisible: Boolean = false
 
@@ -39,7 +37,6 @@ class LoginFragm : Fragment() {
         emailEditText = view.findViewById(R.id.login_email)
         passwordEditText = view.findViewById(R.id.login_password)
         passwordToggle = view.findViewById(R.id.password_toggle)
-        userEmailTextView = view.findViewById(R.id.emailTextView)
         val loginButton: Button = view.findViewById(R.id.login_button)
 
         passwordToggle.setOnClickListener {
@@ -83,9 +80,9 @@ class LoginFragm : Fragment() {
                     editor?.putString("email", email)
                     editor?.apply()
 
-                    userEmailTextView.text = email
 
                     val intent = Intent(requireActivity(), MenuHandler::class.java)
+                    intent.putExtra("user_email", email)
                     startActivity(intent)
                 } else {
                     Toast.makeText(requireContext(), "Email o password non validi", Toast.LENGTH_SHORT).show()

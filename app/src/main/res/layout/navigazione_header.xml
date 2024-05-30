@@ -9,19 +9,13 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="my name"
-        android:textColor="@color/white"
-        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="myemail@esempio.com"
+        android:layout_marginBottom="60dp"
+        android:text="@string/user_email"
         android:textColor="@color/white"
         android:textSize="14sp" />
 
