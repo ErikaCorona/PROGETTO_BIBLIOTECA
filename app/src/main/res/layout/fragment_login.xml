@@ -7,20 +7,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".LoginFragm">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="20dp"
             android:padding="20dp">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="200dp"
-                android:src="@drawable/loginimg"/>
+                android:src="@drawable/loginimg" />
+
             <EditText
                 android:layout_width="300dp"
                 android:layout_height="60dp"
@@ -31,19 +35,35 @@
                 android:hint="Email"
                 android:drawableLeft="@drawable/baseline_email_24"
                 android:drawablePadding="8dp"
-                android:background="@drawable/testoedit_bg"/>
-            <EditText
+                android:background="@drawable/testoedit_bg" />
+
+            <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
-                android:id="@+id/login_password"
-                android:layout_marginTop="20dp"
-                android:padding="8dp"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:drawableLeft="@drawable/baseline_lock_24"
-                android:drawablePadding="8dp"
-                android:background="@drawable/testoedit_bg"/>
+                android:layout_marginTop="20dp">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/login_password"
+                    android:padding="8dp"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:drawableLeft="@drawable/baseline_lock_24"
+                    android:drawablePadding="8dp"
+                    android:background="@drawable/testoedit_bg" />
+
+                <ImageView
+                    android:id="@+id/password_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:padding="16dp"
+                    android:src="@drawable/baseline_vpn_key_off_24" />
+            </RelativeLayout>
+
             <Button
                 android:layout_width="300dp"
                 android:layout_height="70dp"
@@ -52,7 +72,7 @@
                 android:id="@+id/login_button"
                 android:textSize="18sp"
                 android:text="Login"
-                app:cornerRadius = "30dp"/>
+                app:cornerRadius="30dp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
