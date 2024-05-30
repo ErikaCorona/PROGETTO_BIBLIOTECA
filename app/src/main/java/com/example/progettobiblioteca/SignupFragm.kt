@@ -13,8 +13,6 @@ import android.widget.EditText
 import android.widget.Switch
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class SignupFragm : Fragment() {
 
@@ -24,7 +22,7 @@ class SignupFragm : Fragment() {
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var admin: Switch
 
-    private val db: FirebaseFirestore by lazy { Firebase.firestore }
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,36 +36,37 @@ class SignupFragm : Fragment() {
         confPassEditText = rootView.findViewById(R.id.signup_confirm)
         admin = rootView.findViewById(R.id.adminSwitch)
 
+        // Inizializza db usando l'istanza fornita da MyApplication
+        db = (requireActivity().application as MyApplication).db
+
         val registerButton = rootView.findViewById<Button>(R.id.signup_button)
         registerButton.setOnClickListener {
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
             val confirm = confPassEditText.text.toString()
 
-
             if (Verifiche.isValidEmail(email) && Verifiche.isValidPassword(password) && Verifiche.confirmPassword(password, confirm)) {
                 val trimmedEmail = email.trim()
-                val trimmedPassword = password.trim()
 
-                // Check if the email already exists in Firestore
-                db.collection("users").document(trimmedEmail).get()
+                // Controlla se l'email esiste già in Firestore
+                db.collection(DataBaseHelper.COLLECTION_USERS).document(trimmedEmail).get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // Email already exists
+                            // Email già esistente
                             showNotification("Errore", "Email già esistente")
                         } else {
-                            // Create a new user in Firestore
+                            // Crea un nuovo utente in Firestore
                             val user = hashMapOf(
-                                "email" to trimmedEmail,
-                                "password" to trimmedPassword,
-                                "admin" to admin.isChecked
+                                DataBaseHelper.COL_EMAIL to email,
+                                DataBaseHelper.COL_PASSWORD to password,
+                                DataBaseHelper.COL_ADMIN to if (admin.isChecked) 1 else 0
                             )
 
-                            db.collection("users").document(trimmedEmail).set(user)
+                            db.collection(DataBaseHelper.COLLECTION_USERS).document(trimmedEmail).set(user)
                                 .addOnSuccessListener {
                                     Log.d(TAG, "DocumentSnapshot added with ID: $trimmedEmail")
 
-                                    // Start the MainActivity
+                                    // Avvia MainActivity
                                     val intent = Intent(context, MainActivity_new::class.java)
                                     startActivity(intent)
                                 }

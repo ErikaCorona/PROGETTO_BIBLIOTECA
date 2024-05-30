@@ -2,12 +2,14 @@ package com.example.progettobiblioteca
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
 class AddFragm : Fragment() {
@@ -25,6 +27,7 @@ class AddFragm : Fragment() {
     private lateinit var salvaFilm: Button
     private lateinit var salvaMusic: Button
 
+    private lateinit var db: FirebaseFirestore
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +35,9 @@ class AddFragm : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.add_fragment, container, false)
+
+        db = (requireActivity().application as MyApplication).db
+
         titoloBook = view.findViewById(R.id.titolo)
         autore = view.findViewById(R.id.autore)
         annoBook = view.findViewById(R.id.anno)
@@ -46,7 +52,6 @@ class AddFragm : Fragment() {
         salvaFilm = view.findViewById(R.id.saveFilm)
         salvaMusic = view.findViewById(R.id.saveMusic)
 
-        val myDB = DataBaseHelper(requireContext())
 
         salvaBook.setOnClickListener {
             val titolo = titoloBook.text.toString()
@@ -63,10 +68,10 @@ class AddFragm : Fragment() {
                             "Anno non può essere nel futuro"
                         )
                     } else {
-                        myDB.addBook(titolo, autoreB, annoB)
+                        addBook(titolo, autoreB, annoB)
                     }
                 } else {
-                    myDB.addBook(titolo, autoreB, null)
+                    addBook(titolo, autoreB, null)
                 }
             } else {
                 Notifica.showNotification(
@@ -92,10 +97,10 @@ class AddFragm : Fragment() {
                             "Anno non può essere nel futuro"
                         )
                     } else {
-                        myDB.addFilm(titolo, registaF, annoF)
+                        addFilm(titolo, registaF, annoF)
                     }
                 } else {
-                    myDB.addFilm(titolo, registaF, null)
+                    addFilm(titolo, registaF, null)
                 }
             } else {
                 Notifica.showNotification(
@@ -122,10 +127,10 @@ class AddFragm : Fragment() {
                             "Anno non può essere nel futuro"
                         )
                     } else {
-                        myDB.addMusic(titolo, cantanteM, annoM, genereM)
+                        addMusic(titolo, cantanteM, annoM, genereM)
                     }
                 } else {
-                    myDB.addMusic(titolo, cantanteM, null, genereM)
+                    addMusic(titolo, cantanteM, null, genereM)
                 }
             } else {
                 Notifica.showNotification(
@@ -138,4 +143,67 @@ class AddFragm : Fragment() {
 
         return view
     }
+
+    // Aggiungi un libro a Firestore
+    private fun addBook(titolo: String, autore: String, anno: Int? = null) {
+        val book = hashMapOf(
+            DataBaseHelper.COL_BOOK_TITOLO to titolo,
+            DataBaseHelper.COL_BOOK_AUTORE to autore,
+            DataBaseHelper.COL_ANNO to anno
+        )
+
+        db.collection(DataBaseHelper.COLLECTION_BOOKS).add(book)
+            .addOnSuccessListener {documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Libro aggiunto con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta del libro")
+            }
+    }
+
+    // Aggiungi un film a Firestore
+    private fun addFilm(titolo: String, regista: String, anno: Int? = null) {
+        val film = hashMapOf(
+            DataBaseHelper.COL_FILM_TITOLO to titolo,
+            DataBaseHelper.COL_FILM_REGISTA to regista,
+            DataBaseHelper.COL_FILM_ANNO to anno
+        )
+
+        db.collection(DataBaseHelper.COLLECTION_FILM).add(film)
+            .addOnSuccessListener {documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Film aggiunto con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta del film")
+            }
+    }
+
+    // Aggiungi una canzone a Firestore
+    private fun addMusic(titolo: String, cantante: String, anno: Int? = null, genere: String) {
+        val music = hashMapOf(
+            DataBaseHelper.COL_MUSICA_TITOLO to titolo,
+            DataBaseHelper.COL_MUSICA_CANTANTE to cantante,
+            DataBaseHelper.COL_MUSICA_ANNO to anno,
+            DataBaseHelper.COL_MUSICA_GENERE to genere
+        )
+
+        db.collection(DataBaseHelper.COLLECTION_MUSIC).add(music)
+            .addOnSuccessListener { documentReference ->
+                Log.d("AddFragm", "DocumentSnapshot added with ID: ${documentReference.id}")
+                Notifica.showNotification(context, "Successo", "Musica aggiunta con successo")
+            }
+            .addOnFailureListener { e ->
+                Log.w("AddFragm", "Error adding document", e)
+                Notifica.showNotification(context, "Errore", "Si è verificato un errore durante l'aggiunta della musica")
+            }
+    }
+
+
+
+
+
 }

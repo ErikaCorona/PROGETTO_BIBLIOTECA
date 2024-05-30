@@ -1,3 +1,4 @@
+
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,10 +8,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.progettobiblioteca.DataBaseHelper
+import com.example.progettobiblioteca.DataBaseHelper.Companion.COLLECTION_PRESTITI
 import com.example.progettobiblioteca.R
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class OnLoanFragm : Fragment() {
 
@@ -52,21 +57,23 @@ class OnLoanFragm : Fragment() {
 
         for (collection in collections) {
             db.collection(collection)
-                .whereEqualTo("Titolo", objectName)
+                .whereEqualTo("Titolo" , objectName)
                 .get()
                 .addOnSuccessListener { documents ->
                     if (!documents.isEmpty) {
                         itemId = documents.documents[0].id // Prendi l'ID del primo documento trovato
                         callback(itemId)
+
                     }
+
                 }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(context, "Errore: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
+
         }
+        Toast.makeText(context, "Oggetto" + itemId, Toast.LENGTH_SHORT).show()
 
         // Se l'oggetto non è stato trovato in nessuna collezione
         if (itemId.isEmpty()) {
+            Toast.makeText(context, "Errore: ogg non trov", Toast.LENGTH_SHORT).show()
             callback("")
         }
     }
@@ -80,13 +87,13 @@ class OnLoanFragm : Fragment() {
 
                 // Aggiungi il prestito nel Firestore
                 val prestito = hashMapOf(
-                    "userId" to userId,
-                    "itemId" to itemId,
-                    "dataNoleggio" to currentDate,
-                    "dataRestituzione" to returnDate
+                    DataBaseHelper.COL_PRESTITI_USERID to userId,
+                    DataBaseHelper.COL_PRESTITI_ITEMID to itemId,
+                    DataBaseHelper.COL_PRESTITI_DATANOLEGGIO to currentDate,
+                    DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE to returnDate
                 )
 
-                db.collection("Prestiti")
+                db.collection(COLLECTION_PRESTITI)
                     .add(prestito)
                     .addOnSuccessListener {
                         Toast.makeText(context, "Prestito effettuato con successo", Toast.LENGTH_SHORT).show()

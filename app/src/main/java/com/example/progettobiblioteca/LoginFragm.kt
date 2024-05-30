@@ -1,5 +1,6 @@
 package com.example.progettobiblioteca
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +10,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.progettobiblioteca.DataBaseHelper.Companion.COLLECTION_USERS
 import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginFragm : Fragment() {
+
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
-    private val db = FirebaseFirestore.getInstance()
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -22,6 +25,10 @@ class LoginFragm : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
+
+        // Ottieni l'istanza di Firestore da MyApplication
+        db = (requireActivity().application as MyApplication).db
+
         emailEditText = view.findViewById(R.id.login_email)
         passwordEditText = view.findViewById(R.id.login_password)
         val loginButton: Button = view.findViewById(R.id.login_button)
@@ -44,6 +51,12 @@ class LoginFragm : Fragment() {
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
+
+                    val sharedPreferences = context?.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+                    val editor = sharedPreferences?.edit()
+                    editor?.putString("email", email)
+                    editor?.apply()
+
                     val intent = Intent(requireActivity(), MenuHandler::class.java)
                     startActivity(intent)
                 } else {
@@ -55,24 +68,24 @@ class LoginFragm : Fragment() {
             }
     }
 
-
     object AdminManager {
-    fun isAdmin(email: String, callback: (Boolean) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
+        fun isAdmin(email: String, callback: (Boolean) -> Unit) {
+            // Usa l'istanza di Firestore da MyApplication
+            val db = (MyApplication.getInstance()).db
 
-        db.collection("Admins")
-            .document(email)
-            .get()
-            .addOnSuccessListener { document ->
-                val isAdmin = document.exists()
-                callback(isAdmin)
-            }
-            .addOnFailureListener { exception ->
-                // Gestione degli errori
-                // Puoi aggiungere un messaggio Toast o fare altro per gestire l'errore
-                callback(false)
-            }
+            db.collection(COLLECTION_USERS)
+                .document(email)
+                .get()
+                .addOnSuccessListener { document ->
+                    val isAdmin = document.exists()
+                    callback(isAdmin)
+                }
+                .addOnFailureListener {
+                    // Gestione degli errori
+                    callback(false)
+                }
         }
     }
 }
+
 

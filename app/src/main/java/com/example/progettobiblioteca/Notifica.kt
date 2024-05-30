@@ -11,12 +11,12 @@ class Notifica(private val context: Context) {
 
     companion object {
         @JvmStatic
-        fun showNotification(context: Context, title: String, message: String) {
+        fun showNotification(context: Context?, title: String, message: String) {
             val notificationId = 1
             val channelId = "my_channel_id"
             val channelName = "My Channel"
 
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val notificationBuilder = NotificationCompat.Builder(context, channelId)
                 .setContentTitle(title)
