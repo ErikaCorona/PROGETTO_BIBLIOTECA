@@ -26,5 +26,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Makes a loan" />
+    <TextView
+        android:id="@+id/imiei_prestiti"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:hint="My loans"
+        android:textStyle="bold"
+        android:inputType="text" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_loans"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+
 
 </LinearLayout>

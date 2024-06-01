@@ -64,11 +64,6 @@ class MenuHandler : AppCompatActivity() {
                     " news cliccato",
                     Toast.LENGTH_SHORT
                 ).show()
-                R.id.nav_catalog -> Toast.makeText(
-                    applicationContext,
-                    " catalogo cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
                 R.id.nav_loan -> openFragment(OnLoanFragm())
                 R.id.nav_settings -> Toast.makeText(
                     applicationContext,

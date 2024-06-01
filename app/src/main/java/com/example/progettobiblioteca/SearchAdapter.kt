@@ -7,29 +7,34 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
-    private var results: List<String> = emptyList()
+    class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val resultText: TextView = itemView.findViewById(R.id.result_text)
-    }
+        private var loanItems: List<LoanItem> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search_result,parent,false)
-        return ViewHolder(view)
-    }
+        class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val resultCollectionName: TextView = itemView.findViewById(R.id.result_collection_name)
+            val resultText: TextView = itemView.findViewById(R.id.result_text)
+            val resultReturnDate: TextView = itemView.findViewById(R.id.result_return_date)
+        }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.resultText.text = results[ position]
-    }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search_result, parent, false)
+            return ViewHolder(view)
+        }
 
-    override fun getItemCount()= results.size
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val item = loanItems[position]
+            holder.resultCollectionName.text = item.collectionName // Imposta il nome della collezione
+            holder.resultText.text = item.title
+            holder.resultReturnDate.text = "Data restituzione: ${item.returnDate}"
+        }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateResults(newResults: List<String>){
-        results = newResults
-        notifyDataSetChanged()
+        override fun getItemCount() = loanItems.size
 
-    }
+        @SuppressLint("NotifyDataSetChanged")
+        fun updateResults(newLoanItems: List<LoanItem>) {
+            loanItems = newLoanItems
+            notifyDataSetChanged()
+        }
 }

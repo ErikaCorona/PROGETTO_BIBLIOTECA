@@ -1,15 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- item_search_result.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp">
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/result_collection_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:paddingEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/result_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:padding="8dp"/>
+
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/result_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/result_return_date"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Result"
-        android:textSize="16sp" />
+        android:textAppearance="?android:textAppearanceSmall"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"/>
 
 </LinearLayout>

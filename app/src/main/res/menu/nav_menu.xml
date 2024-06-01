@@ -12,8 +12,8 @@
             android:title="Add"/>
         <item
             android:id="@+id/nav_search"
-            android:icon="@drawable/baseline_search_24"
-            android:title="Search"/>
+            android:icon="@drawable/baseline_menu_book_24"
+            android:title="Catalog"/>
 
         <item
             android:id="@+id/nav_news"
@@ -21,10 +21,6 @@
             android:title="News"/>
 
 
-        <item
-            android:id="@+id/nav_catalog"
-            android:icon="@drawable/baseline_menu_book_24"
-            android:title="Catalog"/>
 
 
         <item

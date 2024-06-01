@@ -11,6 +11,7 @@ class DataBaseHelper(private val context: Context) {
         const val COLLECTION_MUSIC = "Canzone"
         const val COLLECTION_PRESTITI = "Prestiti"
 
+
         const val COL_EMAIL = "Email"
         const val COL_PASSWORD = "Password"
         const val COL_ADMIN = "Admin"
@@ -28,6 +29,7 @@ class DataBaseHelper(private val context: Context) {
         const val COL_PRESTITI_ITEMID = "itemId"
         const val COL_PRESTITI_DATANOLEGGIO = "dataNoleggio"
         const val COL_PRESTITI_DATARESTITUZIONE = "dataRestituzione"
+        const val COL_PRESTITI_NAME= "collectionName"
         }
 
 }

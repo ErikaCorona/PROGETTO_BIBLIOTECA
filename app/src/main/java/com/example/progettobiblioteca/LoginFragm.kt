@@ -95,18 +95,28 @@ class LoginFragm : Fragment() {
 
     object AdminManager {
         fun isAdmin(email: String, callback: (Boolean) -> Unit) {
-            val db = (MyApplication.getInstance()).db
+            val db = FirebaseFirestore.getInstance()
 
             db.collection(COLLECTION_USERS)
-                .document(email)
+                .whereEqualTo("Email", email)
                 .get()
-                .addOnSuccessListener { document ->
-                    val isAdmin = document.exists()
-                    callback(isAdmin)
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        // Assume che ci sia un solo documento per utente (se l'email è univoca)
+                        val adminValue = documents.documents[0].getLong("Admin") ?: 0
+                        val isAdmin = adminValue == 1L
+                        callback(isAdmin)
+                    } else {
+                        // Utente non trovato
+                        callback(false)
+                    }
                 }
                 .addOnFailureListener {
+                    // Gestione dell'errore
                     callback(false)
                 }
         }
+
+
     }
 }
