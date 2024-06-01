@@ -189,13 +189,12 @@ class OnLoanFragm: Fragment() {
         }
     }
 
-    private fun addPrestito(context: Context, userEmail: String, itemId: String, collectionName: String) {
+    private fun addPrestito(context: Context, userEmail: String, itemId: String, itemType: String) {
         getUserIdFromEmail(context, userEmail) { userId ->
-            if (userId.isNotEmpty()) {
+            if (userId != "") {
                 db.collection(COLLECTION_PRESTITI)
                     .whereEqualTo(DataBaseHelper.COL_PRESTITI_USERID, userId)
                     .whereEqualTo(DataBaseHelper.COL_PRESTITI_ITEMID, itemId)
-                    .whereEqualTo(DataBaseHelper.COL_PRESTITI_NAME, collectionName) // Aggiunta della condizione per il nome della collezione
                     .get()
                     .addOnSuccessListener { userDocuments ->
                         if (!userDocuments.isEmpty) {
@@ -205,28 +204,52 @@ class OnLoanFragm: Fragment() {
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
-                            val currentDate = getCurrentDate()
-                            val returnDate = getReturnDate(currentDate)
-                            val prestito = hashMapOf(
-                                DataBaseHelper.COL_PRESTITI_USERID to userId,
-                                DataBaseHelper.COL_PRESTITI_ITEMID to itemId,
-                                DataBaseHelper.COL_PRESTITI_DATANOLEGGIO to currentDate,
-                                DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE to returnDate,
-                                DataBaseHelper.COL_PRESTITI_NAME to collectionName // Aggiunta del nome della collezione nel documento del prestito
-                            )
                             db.collection(COLLECTION_PRESTITI)
-                                .add(prestito)
-                                .addOnSuccessListener {
-                                    Toast.makeText(
-                                        context,
-                                        "Prestito effettuato con successo",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                .whereEqualTo(DataBaseHelper.COL_PRESTITI_ITEMID, itemId)
+                                .get()
+                                .addOnSuccessListener { itemDocuments ->
+                                    if (!itemDocuments.isEmpty) {
+                                        val prestitoDoc = itemDocuments.documents[0]
+                                        val dataRestituzione =
+                                            prestitoDoc.getString(DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE)
+                                                ?: ""
+                                        Toast.makeText(
+                                            context,
+                                            "L'oggetto sarà disponibile per il prestito dopo il $dataRestituzione",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } else {
+                                        val currentDate = getCurrentDate()
+                                        val returnDate = getReturnDate(currentDate)
+                                        val prestito = hashMapOf(
+                                            DataBaseHelper.COL_PRESTITI_USERID to userId,
+                                            DataBaseHelper.COL_PRESTITI_ITEMID to itemId,
+                                            DataBaseHelper.COL_PRESTITI_DATANOLEGGIO to currentDate,
+                                            DataBaseHelper.COL_PRESTITI_DATARESTITUZIONE to returnDate,
+                                            "Tipo" to itemType  // Aggiungi il tipo di oggetto (film/canzone)
+                                        )
+                                        db.collection(COLLECTION_PRESTITI)
+                                            .add(prestito)
+                                            .addOnSuccessListener {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Prestito effettuato con successo",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                            .addOnFailureListener { exception ->
+                                                Toast.makeText(
+                                                    context,
+                                                    "Errore durante l'aggiunta del prestito: ${exception.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                    }
                                 }
                                 .addOnFailureListener { exception ->
                                     Toast.makeText(
                                         context,
-                                        "Errore durante l'aggiunta del prestito: ${exception.message}",
+                                        "Errore durante il controllo del prestito: ${exception.message}",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
