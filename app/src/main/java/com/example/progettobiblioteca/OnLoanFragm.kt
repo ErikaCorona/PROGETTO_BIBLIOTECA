@@ -23,7 +23,7 @@ class OnLoanFragm: Fragment() {
     private lateinit var nome: EditText
     private lateinit var effettuaPrestito: Button
     private lateinit var recyclerView: RecyclerView
-    private lateinit var searchAdapter: SearchAdapter
+    private lateinit var searchAdapter: LoanSearchAdapter
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
@@ -36,7 +36,7 @@ class OnLoanFragm: Fragment() {
         recyclerView = view.findViewById(R.id.recycler_view_loans)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
-        searchAdapter = SearchAdapter()
+        searchAdapter = LoanSearchAdapter()
         recyclerView.adapter = searchAdapter
 
         effettuaPrestito.setOnClickListener {
@@ -51,8 +51,6 @@ class OnLoanFragm: Fragment() {
                             addPrestito(context, userEmail, itemId, collectionName)
                         }
                     }
-                } else {
-                    Toast.makeText(context, "Nome dell'oggetto non trovato", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -291,6 +289,12 @@ class OnLoanFragm: Fragment() {
 data class LoanItem(
     val collectionName: String,
     val title: String,
-    val returnDate: String
+    val returnDate: String,
 
 )
+data class CatalogItem(
+    val collectionName: String,
+    val title: String,
+    val author: String
+)
+

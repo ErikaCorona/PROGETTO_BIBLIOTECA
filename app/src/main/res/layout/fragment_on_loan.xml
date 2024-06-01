@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="150dp"
         android:hint="On loan"
-        android:textStyle="bold"        
+        android:textStyle="bold"
         android:inputType="text" />
     <EditText
         android:id="@+id/item_name"
@@ -38,7 +38,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_loans"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="310dp"
         android:layout_marginTop="16dp" />
 
 
