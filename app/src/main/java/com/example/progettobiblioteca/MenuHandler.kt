@@ -1,5 +1,6 @@
-
 package com.example.progettobiblioteca
+
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,19 +9,20 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.navigation.NavigationView
 
-class MenuHandler : AppCompatActivity() {
+class MenuHandler : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.menu)
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-
 
         toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
@@ -28,52 +30,55 @@ class MenuHandler : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-
         val sharedPreferences = getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val email = sharedPreferences.getString("email", "")
         if (!email.isNullOrEmpty()) {
             updateUserEmail(email)
         }
 
-        navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.add -> {
-                    if (!email.isNullOrEmpty()) {
-                        LoginFragm.AdminManager.isAdmin(email) { isAdmin ->
-                            if (isAdmin) {
-                                openFragment(AddFragm())
-                            } else {
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Non hai i permessi per questa azione",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Email non trovata. Effettua nuovamente il login.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                R.id.nav_search -> openFragment(SearchFragment())
-                R.id.nav_news -> Toast.makeText(
-                    applicationContext,
-                    " news cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
-                R.id.nav_loan -> openFragment(OnLoanFragm())
-                R.id.nav_settings -> Toast.makeText(
-                    applicationContext,
-                    " parametri cliccato",
-                    Toast.LENGTH_SHORT
-                ).show()
-                R.id.nav_logout -> openFragment(LogoutFrag())
-            }
-            true
+        navView.setNavigationItemSelectedListener(this)
+
+        // Carica il NewsFragment se non esiste già un frammento salvato
+        if (savedInstanceState == null) {
+            openFragment(NewsFragment())
         }
+    }
+
+    override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
+        val email = getSharedPreferences("user_data", Context.MODE_PRIVATE).getString("email", "")
+        when (menuItem.itemId) {
+            R.id.add -> {
+                if (!email.isNullOrEmpty()) {
+                    LoginFragm.AdminManager.isAdmin(email) { isAdmin ->
+                        if (isAdmin) {
+                            openFragment(AddFragm())
+                        } else {
+                            Toast.makeText(
+                                applicationContext,
+                                "Non hai i permessi per questa azione",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "Email non trovata. Effettua nuovamente il login.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            R.id.nav_search -> openFragment(SearchFragment())
+            R.id.nav_news -> openFragment(NewsFragment())
+            R.id.nav_loan -> openFragment(OnLoanFragm())
+            R.id.nav_settings -> Toast.makeText(
+                applicationContext,
+                "Parametri cliccato",
+                Toast.LENGTH_SHORT
+            ).show()
+            R.id.nav_logout -> openFragment(LogoutFrag())
+        }
+        return true
     }
 
     private fun openFragment(fragment: Fragment) {
@@ -81,7 +86,6 @@ class MenuHandler : AppCompatActivity() {
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawers()
     }
 
@@ -97,5 +101,14 @@ class MenuHandler : AppCompatActivity() {
         val headerView: View = navigationView.getHeaderView(0)
         val userEmailTextView: TextView = headerView.findViewById(R.id.emailTextView)
         userEmailTextView.text = email
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
     }
 }
